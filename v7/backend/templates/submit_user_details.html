@@ -1,0 +1,28 @@
+<!-- templates/submit_patient_details.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submit User Details for {{ device.nickname }}</title>
+</head>
+<body>
+    <h2>Submit User Details for Device: {{ device.nickname }}</h2>
+    <form method="POST">
+        User's Name: <input type="text" name="user_name" required><br>
+        Phone Number: <input type="text" name="phone_number" required><br>
+        <input type="submit" value="Submit Details">
+    </form>
+    
+    <a href="{{ url_for('index') }}">Back to Home</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Device</title>
+</head>
+<body>
+<h2>Add New Device</h2>
+<form method="POST" action="/add-device">
+    IP Address: <input type="text" name="ip" required><br>
+    Passkey: <input type="password" name="passkey" required><br>
+    Nickname: <input type="text" name="nickname" required><br>
+    <input type="submit" value="Add Device">
+</form>
+<a href="/">Back to Home</a>
+
+{% with messages = get_flashed_messages() %} {% if messages %}
+    <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
+    
+</body>
+</html>
