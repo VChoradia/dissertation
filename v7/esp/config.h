@@ -16,6 +16,7 @@
 #define LED_PIN 13
 
 bool isPublishing = false;  // State variable to keep track of publishing status
+bool isSwitchOn = false;
 int lastButtonState = LOW;  // Last state of the button
 
 
@@ -54,45 +55,6 @@ void ledOff() {
   digitalWrite(LED_PIN, LOW);
 }
 
-void getDetails() {
-
-   WiFiClient client;
-  if (!client.connect(host, httpPort)) {
-    Serial.println("Connection failed");
-    return;
-  }
-
-  // This will send the request to the server
-  client.print(String("GET ") + "/getDetails" + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" +
-               "Connection: close\r\n\r\n");
-  delay(500); // Wait for server to respond
-
-  // Initialize the JSON Document
-  DynamicJsonDocument doc(1024);
-
-  // Read all the lines of the reply from server and deserialize the JSON content
-  String line;
-  while (client.available()) {
-    line = client.readStringUntil('\r');
-  }
-
-  // Use ArduinoJson to deserialize the JSON
-  DeserializationError error = deserializeJson(doc, line);
-  if (error) {
-    Serial.print("deserializeJson() failed: ");
-    Serial.println(error.c_str());
-    return;
-  }
-
-  // Extract the values
-  name = doc["name"].as<String>(); 
-  to = doc["to"].as<String>(); 
-  bpm_lower_threshold = doc["bpm_lower_threshold"].as<int>();
-  bpm_upper_threshold = doc["bpm_upper_threshold"].as<int>();
-  temp_lower_threshold = doc["temp_lower_threshold"].as<int>();
-  temp_upper_threshold = doc["temp_upper_threshold"].as<int>();
-  }
 
   void sendDetails(int bpm, float temp) {
   // Check WiFi connection status

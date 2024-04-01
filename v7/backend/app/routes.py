@@ -40,11 +40,23 @@ def submit_user_details():
     ip_address = request.json.get('deviceIp')
     user_name = request.json.get('userName')
     phone_number = request.json.get('phoneNumber')
+    bpm_upper_threshold = request.form.get('bpm_upper_threshold')
+    bpm_lower_threshold = request.form.get('bpm_lower_threshold')
+    temperature_upper_threshold = request.form.get('temperature_upper_threshold')
+    temperature_lower_threshold = request.form.get('temperature_lower_threshold')
 
     device = Device.query.filter_by(ip_address=ip_address).first()
     if device:
-        patient_detail = UserDetail(user_name=user_name, phone_number=phone_number, device_id=device.id)
-        db.session.add(patient_detail)
+        user_detail = UserDetail(user_name=user_name, 
+                                 phone_number=phone_number, 
+                                 device_id=device.id, 
+                                 bpm_upper_threshold=bpm_upper_threshold, 
+                                 bpm_lower_threshold=bpm_lower_threshold,
+                                 temperature_upper_threshold=temperature_upper_threshold,
+                                 temperature_lower_threshold=temperature_lower_threshold
+                                 )
+        
+        db.session.add(user_detail)
         try:
             db.session.commit()
             return jsonify({"message": "Device will start publishing data"}), 200
@@ -71,12 +83,16 @@ def verify_device(ip_address, passkey):
     return False
 
 
-def send_user_data_to_device(ip_address, user_name, phone_number):
-    print(user_name, phone_number)
+def send_user_data_to_device(ip_address, user_name, phone_number, bpm_upper_threshold, bpm_lower_threshold, temperature_upper_threshold, temperature_lower_threshold):
+    print(user_name, phone_number, bpm_upper_threshold, bpm_lower_threshold, temperature_upper_threshold, temperature_lower_threshold)
     device_url = f"http://{ip_address}/receive-user-data"
     data = {
         'userName': user_name,
-        'phoneNumber': phone_number
+        'phoneNumber': phone_number,
+        'bpmUpperThreshold': bpm_upper_threshold,
+        'bpmLowerThreshold': bpm_lower_threshold,
+        'tempUpperThreshold': temperature_upper_threshold,
+        'tempLowerThreshold': temperature_lower_threshold
     }
     try:
         response = requests.post(device_url, json=data, timeout=5)
@@ -98,17 +114,35 @@ def device_page(device_id):
     if device is None:
         flash('Device not found.', 'error')
         return redirect(url_for('index'))
+    
+     # Check if user details have already been submitted for this device
+    user_detail = UserDetail.query.filter_by(device_id=device_id).first()
+    if user_detail:
+        # If details exist, redirect to the live data page
+        return redirect(url_for('live_data_page', device_id=device_id))
 
     if request.method == 'POST':
         # Process the submitted user details form
         user_name = request.form.get('user_name')
         phone_number = request.form.get('phone_number')
+        bpm_upper_threshold = request.form.get('bpm_upper_threshold')
+        bpm_lower_threshold = request.form.get('bpm_lower_threshold')
+        temperature_upper_threshold = request.form.get('temperature_upper_threshold')
+        temperature_lower_threshold = request.form.get('temperature_lower_threshold')
+
         
         # Attempt to send user data to the device
-        success = send_user_data_to_device(device.ip_address, user_name, phone_number)
+        success = send_user_data_to_device(device.ip_address, user_name, phone_number, bpm_upper_threshold, bpm_lower_threshold, temperature_upper_threshold, temperature_lower_threshold)
         if success:
             # Save user details to the database only if successful
-            new_user_detail = UserDetail(device_id=device.id, user_name=user_name, phone_number=phone_number)
+            new_user_detail = UserDetail(device_id=device.id, 
+                                         user_name=user_name, 
+                                         phone_number=phone_number,
+                                         bpm_upper_threshold=bpm_upper_threshold, 
+                                         bpm_lower_threshold=bpm_lower_threshold,
+                                         temperature_upper_threshold=temperature_upper_threshold,
+                                         temperature_lower_threshold=temperature_lower_threshold)
+            
             db.session.add(new_user_detail)
             try:
                 db.session.commit()
@@ -124,3 +158,110 @@ def device_page(device_id):
 
     # Render the device page with the device details form
     return render_template('submit_user_details.html', device=device)
+
+
+@app.route('/device/<device_id>/live-data')
+def live_data_page(device_id):
+    device = Device.query.get(device_id)
+    user_detail = UserDetail.query.filter_by(device_id=device_id).first()
+
+    if device is None:
+        flash('Device not found.', 'error')
+        return redirect(url_for('index'))
+
+    # Logic to fetch live data from the device or database would go here
+    bpm = None  # Placeholder for actual BPM data
+    temperature = None  # Placeholder for actual temperature data
+
+    return render_template('live_data.html', device=device, user_detail=user_detail, bpm=bpm, temperature=temperature)
+
+@app.route('/device/<device_id>/update-details', methods=['POST'])
+def update_device_user_details(device_id):
+    device = Device.query.get(device_id)
+    if device is None:
+        flash('Device not found.', 'error')
+        return redirect(url_for('index'))
+
+    user_name = request.form.get('user_name')
+    phone_number = request.form.get('phone_number')
+    bpm_upper_threshold = request.form.get('bpm_upper_threshold')
+    bpm_lower_threshold = request.form.get('bpm_lower_threshold')
+    temperature_upper_threshold = request.form.get('temperature_upper_threshold')
+    temperature_lower_threshold = request.form.get('temperature_lower_threshold')
+
+    # Attempt to send updated user data to the device
+    success = send_user_data_to_device(device.ip_address, user_name, phone_number, bpm_upper_threshold, bpm_lower_threshold, temperature_upper_threshold, temperature_lower_threshold)
+    if success:
+        # Update user details in the database only if successful
+        user_detail = UserDetail.query.filter_by(device_id=device_id).first()
+        if user_detail:
+            user_detail.user_name = user_name
+            user_detail.phone_number = phone_number
+            user_detail.bpm_lower_threshold = bpm_lower_threshold
+            user_detail.bpm_upper_threshold = bpm_upper_threshold
+            user_detail.temperature_lower_threshold = temperature_lower_threshold
+            user_detail.temperature_upper_threshold = temperature_upper_threshold
+
+            try:
+                db.session.commit()
+                flash('User details updated successfully!', 'success')
+            except Exception as e:
+                db.session.rollback()
+                flash('There was an error saving the user details.', 'error')
+                app.logger.error(f'Error: {e}')
+        else:
+            flash('User details not found for this device.', 'error')
+    else:
+        flash('Failed to send user data to the device.', 'error')
+
+    return redirect(url_for('live_data_page', device_id=device_id))
+
+
+def stop_publishing_data_to_device(ip_address):
+    device_url = f"http://{ip_address}/stop-publishing"
+    try:
+        response = requests.post(device_url, timeout=5)
+        if response.status_code == 200:
+            print("Successfully requested the device to stop publishing data.")
+            return True
+        else:
+            print("Failed to request the device to stop publishing data.")
+            return False
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to communicate with the device: {e}")
+        return False
+
+
+@app.route('/device/<device_id>/delete', methods=['POST'])
+def delete_device(device_id):
+    device = Device.query.get(device_id)
+    if device is None:
+        flash('Device not found.', 'error')
+        return redirect(url_for('index'))
+    
+    # Send request to ESP device to stop publishing data
+    stop_publishing_success = stop_publishing_data_to_device(device.ip_address)
+    if not stop_publishing_success:
+        flash('Failed to stop device from publishing data.', 'error')
+        return redirect(url_for('live_data_page', device_id=device_id))
+
+    # If successful, delete device and associated user details
+    UserDetail.query.filter_by(device_id=device_id).delete()
+    Device.query.filter_by(id=device_id).delete()
+    db.session.commit()
+    flash('Device and associated user details deleted successfully.', 'success')
+
+    return redirect(url_for('index'))
+
+@app.route('/sendDetails', methods=['POST'])
+def receive_details():
+    data = request.get_json()
+    bpm = data.get('bpm')
+    temp = data.get('temp')
+
+    # You may want to do something with the data here, like store it in the database
+    # For demonstration, just print it
+    print('BPM:', bpm, 'Temp:', temp)
+    
+    # Respond to the ESP that the data was received successfully
+    return jsonify({'status': 'success'}), 200

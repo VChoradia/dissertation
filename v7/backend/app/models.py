@@ -16,4 +16,8 @@ class UserDetail(db.Model):
     device_id = db.Column(db.Integer, db.ForeignKey('device.id'), nullable=False)
     user_name = db.Column(db.String(100), nullable=False)
     phone_number = db.Column(db.String(20), nullable=False)
+    bpm_upper_threshold = db.Column(db.Integer)
+    bpm_lower_threshold = db.Column(db.Integer)
+    temperature_upper_threshold = db.Column(db.Integer)
+    temperature_lower_threshold = db.Column(db.Integer)
     device = db.relationship('Device', backref=db.backref('user_details', lazy=True))
