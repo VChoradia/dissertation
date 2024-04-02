@@ -1,8 +1,17 @@
 # app/routes.py
-from flask import Flask, request, jsonify, render_template, request, redirect, url_for, flash
+from flask import Flask, request, jsonify, render_template, request, redirect, url_for, flash,  stream_with_context, Response, g
+import time
+import json
 import requests
 from . import app, db
 from .models import Device, UserDetail
+
+from threading import Lock
+
+most_recent_bpm = 0
+most_recent_temp = 0
+data_lock = Lock()
+
 
 @app.route('/')
 def index():
@@ -163,6 +172,7 @@ def device_page(device_id):
 @app.route('/device/<device_id>/live-data')
 def live_data_page(device_id):
     device = Device.query.get(device_id)
+    print(device)
     user_detail = UserDetail.query.filter_by(device_id=device_id).first()
 
     if device is None:
@@ -255,13 +265,29 @@ def delete_device(device_id):
 
 @app.route('/sendDetails', methods=['POST'])
 def receive_details():
+    global most_recent_bpm, most_recent_temp
     data = request.get_json()
     bpm = data.get('bpm')
     temp = data.get('temp')
 
+    with data_lock:
+        most_recent_bpm = bpm
+        most_recent_temp = temp
+
     # You may want to do something with the data here, like store it in the database
     # For demonstration, just print it
-    print('BPM:', bpm, 'Temp:', temp)
+    print('BPM:', most_recent_bpm, 'Temp:', most_recent_temp)
     
-    # Respond to the ESP that the data was received successfully
     return jsonify({'status': 'success'}), 200
+
+
+@app.route('/data-stream')
+def data_stream():
+    def generate():
+        while True:
+            with data_lock:
+                json_data = json.dumps({'bpm': most_recent_bpm, 'temp': most_recent_temp})
+            yield f"data:{json_data}\n\n"
+            time.sleep(1)
+    
+    return Response(stream_with_context(generate()), content_type='text/event-stream')

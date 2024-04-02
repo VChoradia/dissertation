@@ -4,60 +4,153 @@
   <head>
     <meta charset="UTF-8" />
     <title>Submit User Details for {{ device.nickname }}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/submit-user-details-styles.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/navbar-styles.css') }}"
+    />
   </head>
   <body>
-    <h2>Submit User Details for Device: {{ device.nickname }}</h2>
-    <form method="POST">
-      User's Name: <input type="text" name="user_name" required /><br />
-      Phone Number: <input type="text" name="phone_number" required /><br />
-      <label for="bpm_upper_threshold">BPM Upper Threshold:</label>
-      <input
-        type="number"
-        id="bpm_upper_threshold"
-        name="bpm_upper_threshold"
-        required
-      />
+    <div class="navbar">
+      <div class="navbar-header">
+        <span>Live Health Management</span>
+      </div>
+      <div class="navbar-links">
+        <a href="/">Home</a>
+        <div class="dropdown">
+          <button class="dropbtn">Devices ▼</button>
+          <div class="dropdown-content">
+            {% for device in devices %}
+            <a
+              class="dropdown-options"
+              href="{{ url_for('device_page', device_id=device.id) }}"
+              >{{ device.nickname }}</a
+            >
+            {% endfor %}
+          </div>
+        </div>
+        <a href="{{ url_for('add_device_page') }}">Add New Device</a>
+      </div>
+    </div>
 
-      <label for="bpm_lower_threshold">BPM Lower Threshold:</label>
-      <input
-        type="number"
-        id="bpm_lower_threshold"
-        name="bpm_lower_threshold"
-        required
-      />
+    <div class="device-details">
+      <h2 class="device-name">{{ device.nickname | upper }}</h2>
+      <p class="device-ip">IP Address: {{ device.ip_address }}</p>
+    </div>
 
-      <label for="temperature_upper_threshold"
-        >Temperature Upper Threshold:</label
-      >
-      <input
-        type="number"
-        id="temperature_upper_threshold"
-        name="temperature_upper_threshold"
-        required
-      />
+    <form method="POST" class="user-details-form">
+      <div class="form-group">
+        <label for="user_name" class="form-label">User's Name</label>
+        <input
+          type="text"
+          id="user_name"
+          name="user_name"
+          required
+          class="form-field"
+          placeholder=" "
+        />
+      </div>
 
-      <label for="temperature_lower_threshold"
-        >Temperature Lower Threshold:</label
-      >
-      <input
-        type="number"
-        id="temperature_lower_threshold"
-        name="temperature_lower_threshold"
-        required
-      />
+      <div class="form-group">
+        <label for="phone_number" class="form-label">Phone Number</label>
+        <input
+          type="text"
+          id="phone_number"
+          name="phone_number"
+          required
+          class="form-field"
+          placeholder=" "
+        />
+      </div>
 
-      <input type="submit" value="Submit Details" />
+      <div class="slider-group">
+        <label for="bpm_upper_threshold" class="form-label"
+          >BPM Upper Threshold</label
+        >
+        <input
+          type="range"
+          id="bpm_upper_threshold"
+          name="bpm_upper_threshold"
+          required
+          min="0"
+          max="300"
+          value="120"
+          class="slider"
+        />
+        <span id="bpm_upper_value" class="slider-value">120</span>&nbsp;bpm
+      </div>
+
+      <div class="slider-group">
+        <label for="bpm_lower_threshold" class="form-label"
+          >BPM Lower Threshold</label
+        >
+        <input
+          type="range"
+          id="bpm_lower_threshold"
+          name="bpm_lower_threshold"
+          required
+          min="0"
+          max="300"
+          value="120"
+          class="slider"
+        />
+        <span id="bpm_lower_value" class="slider-value">60</span>&nbsp;bpm
+      </div>
+
+      <div class="slider-group">
+        <label for="temperature_upper_threshold" class="form-label"
+          >Temperature Upper Threshold</label
+        >
+        <input
+          type="range"
+          id="temperature_upper_threshold"
+          name="temperature_upper_threshold"
+          required
+          min="20"
+          max="40"
+          value="32"
+          class="slider"
+        />
+        <span id="temperature_upper_value" class="slider-value">38</span> °C
+      </div>
+
+      <div class="slider-group">
+        <label for="temperature_lower_threshold" class="form-label"
+          >Temperature Lower Threshold</label
+        >
+        <input
+          type="range"
+          id="temperature_lower_threshold"
+          name="temperature_lower_threshold"
+          required
+          min="20"
+          max="40"
+          value="36"
+          class="slider"
+        />
+        <span id="temperature_lower_value" class="slider-value">35</span> °C
+      </div>
+
+      <input type="submit" value="Submit Details" class="submit-btn" />
+      <a href="{{ url_for('index') }}" class="back-btn">Back to Home</a>
     </form>
 
-    <a href="{{ url_for('index') }}">Back to Home</a>
-
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %}
-    <ul class="flashes">
-      {% for category, message in messages %}
-      <li class="{{ category }}">{{ message }}</li>
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+      <li>{{ message }}</li>
       {% endfor %}
     </ul>
     {% endif %} {% endwith %}
+
+    <script src="{{ url_for('static', filename='js/submit-user-details-script.js') }}"></script>
   </body>
 </html>
