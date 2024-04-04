@@ -18,6 +18,25 @@
 #include <WebAuthentication.h>
 #include <WebHandlerImpl.h>
 #include <WebResponseImpl.h>
+#include <queue>
+
+// Define the size of the moving average window
+const int movingAverageWindowSize = 10;
+
+// For BPM
+float bpmSum = 0;
+std::queue<int> bpmReadings;
+float bpmMovingAverage = 0;
+
+// For Temperature
+float tempSum = 0;
+std::queue<float> tempReadings;
+float tempMovingAverage = 0;
+
+// Tolerance constants
+const int BPM_TOLERANCE = 10; // Adjust based on testing and sensor accuracy
+const float TEMP_TOLERANCE = 0.5; // Adjust based on testing and sensor accuracy
+
 
 AsyncWebServer server(80);
 const String devicePasskey = "vivek";
@@ -39,6 +58,8 @@ static unsigned long lastPublishTime = 0;  // Last publish timestamp
 
 
 void setup() {
+
+  while(!Serial);
 
   Serial.begin(115200);
 
@@ -114,39 +135,47 @@ void publishData() {
     } else {
       bpm = 0;  // Consider how you want to handle 0 BPM.
     }
-    Serial.print("BPM: ");
-    Serial.println(bpm);
-
-    // Publish BPM to MQTT
-    if (!bpmFeed.publish(bpm)) {
-      Serial.println(F("Failed BPM"));
-    }
+    
 
     tempSensors.requestTemperatures();
     tempC = tempSensors.getTempCByIndex(0);
 
+    updateMovingAverage(bpm, tempC);
+
+    Serial.print("BPM: ");
+    Serial.println(bpm);
+
     Serial.print("Temp: ");
     Serial.println(tempC);
+    
+    
+     if (abs(bpm - bpmMovingAverage) < BPM_TOLERANCE && abs(tempC - tempMovingAverage) < TEMP_TOLERANCE) {
 
-    // Publish temperature to MQTT
+      // Publish data to MQTT
+    if(bpm >0) {
+      if (!bpmFeed.publish(bpm)) {
+        Serial.println(F("Failed BPM"));
+      }
+    }
     if (!temperatureFeed.publish(tempC)) {
       Serial.println(F("Failed Temp"));
     } 
-
-    if(tempC > temp_upper_threshold || tempC < temp_lower_threshold || bpm > bpm_upper_threshold || bpm < bpm_lower_threshold ) {
-    unsigned long currentMillis = millis();  // Reuse currentMillis defined earlier in loop
-    // Check if at least 30 minutes (1800000 milliseconds) have passed
-    if (currentMillis - lastSMSTime >= 1800000) {
-        char smsString[240]; 
-        sprintf(smsString, "Patient %s's Health Alert: Body Temperature has crossed %.2f°C and current BPM is %d", name, tempC, bpm);
-        if (sendSMS(smsString)) {  // Assuming sendSMS returns true if SMS was successfully sent
-            lastSMSTime = currentMillis;  // Update the last SMS timestamp
-            Serial.println("SMS sent successfully");
-        } else {
-            Serial.println("Failed to send SMS");
+    
+        if(tempC > temp_upper_threshold || tempC < temp_lower_threshold || (bpm > bpm_upper_threshold &&  bpm>0) || (bpm < bpm_lower_threshold && bpm>0) ) {
+        unsigned long currentMillis = millis();  // Reuse currentMillis defined earlier in loop
+        // Check if at least 30 minutes (1800000 milliseconds) have passed
+        if (currentMillis - lastSMSTime >= 1800000) {
+            char smsString[240]; 
+            sprintf(smsString, "Patient %s's Health Alert: Body Temperature has crossed %.2f°C and current BPM is %d", name, tempC, bpm);
+            if (sendSMS(smsString)) {  // Assuming sendSMS returns true if SMS was successfully sent
+                lastSMSTime = currentMillis;  // Update the last SMS timestamp
+                Serial.println("SMS sent successfully");
+            } else {
+                Serial.println("Failed to send SMS");
+            }
         }
-    }
-    }
+        }
+     }
 
     sendDetails(bpm, tempC);
   }
@@ -231,11 +260,39 @@ void handleStopPublishing(AsyncWebServerRequest *request)
     Serial.println("Received request to stop publishing data.");
 
     isPublishing = false;
+    ledOff();
     name = "";
     to = "";
+    bpm_lower_threshold = 0;
+    bpm_upper_threshold = 0;
+    temp_lower_threshold = 0;
+    temp_upper_threshold = 0;
+    
+    lastSMSTime = 1800000;
+    lastPublishTime = 0;
     // Code to stop publishing data goes here.
     // This could involve setting a flag that is checked in the loop() function,
     // stopping a timer, or other mechanisms depending on how data publishing is implemented.
 
     request->send(200, "application/json", "{\"status\":\"success\"}");
+}
+
+void updateMovingAverage(int bpm, float tempC) {
+    // Update BPM moving average
+    if (bpmReadings.size() >= movingAverageWindowSize) {
+        bpmSum -= bpmReadings.front();
+        bpmReadings.pop();
+    }
+    bpmSum += bpm;
+    bpmReadings.push(bpm);
+    bpmMovingAverage = bpmSum / bpmReadings.size();
+
+    // Update Temperature moving average
+    if (tempReadings.size() >= movingAverageWindowSize) {
+        tempSum -= tempReadings.front();
+        tempReadings.pop();
+    }
+    tempSum += tempC;
+    tempReadings.push(tempC);
+    tempMovingAverage = tempSum / tempReadings.size();
 }

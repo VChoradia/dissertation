@@ -11,7 +11,6 @@
 #include <sstream>
 #include <ArduinoJson.h>
 
-
 #define SWITCH_PIN 12
 #define LED_PIN 13
 
@@ -32,7 +31,7 @@ int Threshold = 550;
 PulseSensorPlayground pulseSensor;
 
 // DS18b20 Sensor Setup
-const int TempWire = 10;
+const int TempWire = 9;
 OneWire oneWire(TempWire);
 DallasTemperature tempSensors(&oneWire);
 
@@ -85,5 +84,7 @@ void ledOff() {
     Serial.println("WiFi Disconnected");
   }
 }
+
+
 
 #endif 

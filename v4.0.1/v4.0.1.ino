@@ -23,7 +23,7 @@ int Threshold = 550;
 PulseSensorPlayground pulseSensor;
 
 // DS18b20 Sensor Setup
-const int TempWire = 10;
+const int TempWire = 9;
 OneWire oneWire(TempWire);
 DallasTemperature tempSensors(&oneWire);
 
@@ -66,6 +66,8 @@ void loop() {
     int bpm;
     float tempC;
 
+    
+
     // Ensure MQTT connection
     MQTT_connect();
 
@@ -85,6 +87,7 @@ void loop() {
 
     tempSensors.requestTemperatures();
     tempC = tempSensors.getTempCByIndex(0);
+    Serial.println(tempC);
 
     // Publish temperature to MQTT
     if (!temperatureFeed.publish(tempC)) {
