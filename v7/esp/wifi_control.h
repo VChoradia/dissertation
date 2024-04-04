@@ -16,6 +16,8 @@ void setupWiFi() {
     Serial.print(".");
   }
   Serial.println("Connected to WiFi");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
 }
 
 

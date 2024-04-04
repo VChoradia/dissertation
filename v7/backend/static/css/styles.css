@@ -17,6 +17,7 @@ h2, h3 {
     align-items: flex-start;
     justify-content: flex-start;
     padding: 20px;
+    flex: 1
 }
 
 .center-content {
@@ -119,3 +120,16 @@ font-size: 30px; /* Larger plus icon */
 .flashes li.info {
     color: #17A2B8;
 }
+
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #f2f2f2;
+    color: #666;
+    font-size: 14px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+

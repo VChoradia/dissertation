@@ -104,3 +104,13 @@ body {
 .navbar-links a[href$='add_device_page']:hover {
     background-color: #2980b9;
 }
+
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #f2f2f2;
+    color: #666;
+    font-size: 14px;
+    margin-top: auto; /* This line pushes the footer to the bottom */
+    width: 100%;
+}

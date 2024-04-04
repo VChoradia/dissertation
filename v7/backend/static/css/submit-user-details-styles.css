@@ -163,3 +163,13 @@ ul.messages {
     color: red; /* Or another color that matches your design */
     margin-top: 10px;
   }
+
+  .footer {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #f2f2f2;
+    color: #666;
+    font-size: 14px;
+    margin-top: auto; /* This line pushes the footer to the bottom */
+    width: 100%;
+}

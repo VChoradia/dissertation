@@ -24,7 +24,7 @@ body {
   }
   
   .live-data-container { /* New container for the live data and delete section */
-    flex-basis: 30%; /* Assign a flex-basis to ensure it takes up 30% of the space */
+    flex-basis: 30%; /* Assign a flex-bsis to ensure it takes up 30% of the space */
     display: flex;
     flex-direction: column; /* Stack them on top of each other */
     align-items: center; /* Center align the items */
@@ -220,6 +220,7 @@ ul.messages {
   form {
     display: flex;
     flex-direction: column;
+
   }
   
   input[type="text"], input[type="number"], input[type="submit"] {
@@ -249,6 +250,7 @@ ul.messages {
     .details-form, .live-data {
       width: 80%; /* Full width on smaller screens */
       margin-bottom: 20px;
+
     }
   }
   
@@ -263,3 +265,16 @@ ul.messages {
   .back-home:hover {
     color: #3949AB;
   }
+
+  .footer {
+    margin-top: 2%;
+    text-align: center;
+    padding: 20px 0;
+    position: relative;
+    background-color: #f2f2f2;
+    color: #666;
+    font-size: 14px;
+    font-weight: 100;
+    bottom: 0;
+    width: 100%;
+}

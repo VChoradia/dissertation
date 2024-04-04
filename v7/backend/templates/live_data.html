@@ -5,15 +5,15 @@
     <title>Device and User Data</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/live-data-styles.css') }}"
-    />
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/navbar-styles.css') }}"
     />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/live-data-styles.css') }}"
+    />
+    
   </head>
   <body>
     <div class="navbar">
@@ -218,5 +218,9 @@
 });
     </script>
     <script src="{{ url_for('static', filename='js/submit-user-details-script.js') }}"></script>
+
+    <footer class="footer">
+      <p>&copy; 2024 Live Health Management. All rights reserved.</p>
+  </footer>
   </body>
 </html>

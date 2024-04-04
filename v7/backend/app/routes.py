@@ -22,6 +22,10 @@ def index():
 def add_device_page():
     return render_template('add_device.html')
 
+@app.route('/about-us')
+def about_us_page():
+    return render_template('about_us.html')
+
 @app.route('/add-device', methods=['POST'])
 def add_device():
     ip_address = request.form.get('ip')

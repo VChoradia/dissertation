@@ -4,6 +4,7 @@ body {
     margin: 0;
     padding: 0;
     color: #333;
+    
 }
 
 .add-device-form-container {
@@ -158,5 +159,17 @@ body {
     font-size: 1em;
     color: #5C6BC0;
   }
+
+
+  .footer {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #f2f2f2;
+    color: #666;
+    font-size: 14px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
   
   
