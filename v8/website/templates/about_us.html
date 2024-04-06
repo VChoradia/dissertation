@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Health Management</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar-styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/about-style.css') }}">
+    <script src="{{ url_for('static', filename='lib/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+<body>
+ <!-- Navbar -->
+<div class="navbar">
+    <div class="navbar-header">
+        <span>Live Health Management</span>
+    </div>
+    <div class="navbar-links">
+        <a href="/">Home</a>
+        <a href="/about-us">About</a>
+  
+        <div class="dropdown">
+          <button class="dropbtn">Devices ▼</button>
+          <div class="dropdown-content">
+              {% for device in devices %}
+                  <a class="dropdown-options" href="{{ url_for('device_page', device_id=device.id) }}">{{ device.nickname }}</a>
+              {% endfor %}
+          </div>
+        </div>
+        <a href="{{ url_for('add_device_page') }}">Add New Device</a>
+    </div>
+  </div>
+
+    <!-- Card -->
+    <div class="card">
+        <div class="card-content">
+            <h2>📖 About</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque imperdiet, nisl nec interdum efficitur, nisl dolor fermentum velit, nec iaculis quam dolor non nisi. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+<footer class="footer">
+    <p>&copy; 2024 Live Health Management. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
+

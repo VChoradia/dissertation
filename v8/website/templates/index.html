@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Health Management</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar-styles.css') }}">
+    <script src="{{ url_for('static', filename='lib/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+  <div class="navbar-header">
+      <span>Live Health Management</span>
+  </div>
+  <div class="navbar-links">
+      <a href="/">Home</a>
+      <a href="/about-us">About</a>
+
+      <div class="dropdown">
+        <button class="dropbtn">Devices ▼</button>
+        <div class="dropdown-content">
+            {% for device in devices %}
+                <a class="dropdown-options" href="{{ url_for('device_page', device_id=device.id) }}">{{ device.nickname }}</a>
+            {% endfor %}
+        </div>
+      </div>
+      <a href="{{ url_for('add_device_page') }}">Add New Device</a>
+  </div>
+</div>
+
+<div class="main-content {% if devices|length == 0 %}center-content{% endif %}">
+  {% if devices|length == 0 %}
+    <div class="no-devices">
+      <img src="{{ url_for('static', filename='images/no-device-added-without-bg.png') }}" alt="No Device Added" class="no-device-image"/>
+      <a href="{{ url_for('add_device_page') }}" class="big-add-device-btn">
+        <span class="plus-icon">+</span> Add New Device
+      </a>
+    </div>
+  {% else %}
+    <div class="device-container">
+        {% for device in devices %}
+        <div class="device-card" onclick="window.location.href='{{ url_for('device_page', device_id=device.id) }}'">
+            <div class="device-info">
+                <h4 class="device-nickname">{{ device.nickname | upper }}</h4>
+                <p>BPM: <span id="bpm">--</span></p>
+                <p>Temperature: <span id="temperature">--</span> &deg;C</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+<script>
+    // JavaScript to handle fetching and updating live data goes here
+    const evtSource = new EventSource("/data-stream");
+    evtSource.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        document.getElementById("bpm").innerText = data.bpm;
+        document.getElementById("temperature").innerText = data.temp;
+        // console.log(data);
+    };
+</script>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>&copy; 2024 Live Health Management. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

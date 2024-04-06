@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Device</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/add-device-styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar-styles.css') }}">
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="navbar-header">
+            <span>Live Health Management</span>
+        </div>
+        <div class="navbar-links">
+            <a href="/">Home</a>
+            <div class="dropdown">
+              <button class="dropbtn">Devices ▼</button>
+              <div class="dropdown-content">
+                  {% for device in devices %}
+                      <a class="dropdown-options" href="{{ url_for('device_page', device_id=device.id) }}">{{ device.nickname }}</a>
+                  {% endfor %}
+              </div>
+            </div>
+            <a href="{{ url_for('add_device_page') }}">Add New Device</a>
+        </div>
+      </div>
+    
+      <div class="add-device-form-container">
+        <h2>Add New Device</h2>
+        <form method="POST" action="/add-device" class="add-device-form">
+            <div class="form-group">
+                <input type="text" id="ip" name="ip" required class="form-field" placeholder=" ">
+                <label for="ip" class="form-label">IP Address</label>
+                <i class="info-button" title="Enter IP Address:Port Number of the device.">&#9432;</i> <!-- Unicode for information symbol -->
+            </div>
+            <div class="form-group">
+                <input type="password" id="passkey" name="passkey" required class="form-field" placeholder=" ">
+                <label for="passkey" class="form-label">Passkey</label>
+                <i class="info-button" title="Enter passkey of the device.">&#9432;</i>
+            </div>
+            <div class="form-group">
+                <input type="text" id="nickname" name="nickname" required class="form-field" placeholder=" ">
+                <label for="nickname" class="form-label">Device Nickname</label>
+                <i class="info-button" title="Provide a unique nickname for the device.">&#9432;</i> <!-- Unicode for information symbol -->
+            </div>
+            <div class="form-actions">
+                <input type="submit" value="Add Device" class="submit-btn">
+                <a href="/" class="back-btn">Back to Home</a>
+            </div>
+        </form>
+      </div>
+      
+      {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+      {% endwith %}
+
+<footer class="footer">
+        <p>&copy; 2024 Live Health Management. All rights reserved.</p>
+</footer> 
+ 
+</body>
+</html>
