@@ -26,7 +26,7 @@ class Device(db.Model):
     ip_address = db.Column(db.String(15), nullable=False)
     nickname = db.Column(db.String(50), nullable=False)
     passkey = db.Column(db.String(80), nullable=False)
-    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id'), nullable=False)
+    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id'), nullable=True)
     # Direct link to user
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=True)
     data = db.relationship('DeviceData', backref='device', lazy=True, cascade="all, delete-orphan")

@@ -25,7 +25,7 @@ def register_organization():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-    return jsonify({"success": "Organization registered successfully"}), 201
+    return jsonify({"success": "Organization registered successfully", "organization_id": new_organization.id}), 201
 
 @app.route('/login', methods=['POST'])
 def login_organization():
@@ -89,6 +89,7 @@ def add_or_update_device():
     mac_address = data.get('mac_address')
     ip_address = data.get('ip_address')
     passkey = data.get('passkey')
+    nickname = data.get('nickname')
 
     # Find an existing device by MAC address
     device = Device.query.filter_by(mac_address=mac_address).first()
@@ -98,7 +99,7 @@ def add_or_update_device():
         device.ip_address = ip_address
     else:
         # Create a new device since it doesn't exist
-        device = Device(mac_address=mac_address, ip_address=ip_address, passkey=passkey)
+        device = Device(mac_address=mac_address, ip_address=ip_address, nickname=nickname, passkey=passkey)
         db.session.add(device)
 
     try:
@@ -375,7 +376,15 @@ def delete_organization(organization_id):
 
 @app.route('/devices', methods=['GET'])
 def get_devices():
-    devices = Device.query.all()
+    # Retrieve organization_id from query parameters
+    organization_id = request.args.get('organization_id', default=None, type=int)
+
+    if organization_id is None:
+        return jsonify({"error": "organization_id is required"}), 400
+
+    # Filter devices by the provided organization_id
+    devices = Device.query.filter_by(organization_id=organization_id).all()
+
     devices_list = [{
         'id': device.id,
         'mac_address': device.mac_address,
@@ -383,15 +392,19 @@ def get_devices():
         'nickname': device.nickname,
         'is_assigned_to_user': device.user_id is not None
     } for device in devices]
+
     return jsonify(devices_list), 200
 
 @app.route('/users', methods=['GET'])
 def get_users():
-    users = User.query.all()
+
+    organization_id = request.args.get('organization_id', default=None, type=int)
+
+    users = User.query.filter_by(organization_id=organization_id).all()
     users_list = [{
         'id': user.id,
         'username': user.username,
-        'is_assigned_device': user.device_id is not None
+        'device_assigned': user.device is not None 
     } for user in users]
     return jsonify(users_list), 200
 

@@ -3,8 +3,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Submit User Details for {{ device.nickname }}</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
+    <title>Add New User</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='images/icon.png') }}"
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap"
       rel="stylesheet"
@@ -25,28 +29,15 @@
       </div>
       <div class="navbar-links">
         <a href="/">Home</a>
-        <div class="dropdown">
-          <button class="dropbtn">Devices ▼</button>
-          <div class="dropdown-content">
-            {% for device in devices %}
-            <a
-              class="dropdown-options"
-              href="{{ url_for('device_page', device_id=device.id) }}"
-              >{{ device.nickname }}</a
-            >
-            {% endfor %}
-          </div>
-        </div>
         <a href="{{ url_for('add_device_page') }}">Add New Device</a>
       </div>
     </div>
 
-    <div class="device-details">
-      <h2 class="device-name">{{ device.nickname | upper }}</h2>
-      <p class="device-ip">IP Address: {{ device.ip_address }}</p>
-    </div>
-
-    <form method="POST" class="user-details-form">
+    <form
+      method="POST"
+      action="{{ url_for('add_user_page') }}"
+      class="user-details-form"
+    >
       <div class="form-group">
         <label for="user_name" class="form-label">User's Name</label>
         <input
@@ -139,6 +130,30 @@
         <span id="temperature_lower_value" class="slider-value">35</span> °C
       </div>
 
+      <div class="form-group">
+        <label for="device_id" class="form-label">Assign Device:</label>
+        <select
+          id="device_id"
+          name="device_id"
+          class="form-field"
+          {%
+          if
+          not
+          unassigned_devices
+          %}disabled{%
+          endif
+          %}
+        >
+          {% if unassigned_devices %}
+          <option value="">Select a Device</option>
+          {% for device in unassigned_devices %}
+          <option value="{{ device.id }}">{{ device.nickname }}</option>
+          {% endfor %} {% else %}
+          <option value="">No unassigned devices available</option>
+          {% endif %}
+        </select>
+      </div>
+
       <input type="submit" value="Submit Details" class="submit-btn" />
       <a href="{{ url_for('index') }}" class="back-btn">Back to Home</a>
     </form>
@@ -154,6 +169,6 @@
     <script src="{{ url_for('static', filename='js/submit-user-details-script.js') }}"></script>
     <footer class="footer">
       <p>&copy; 2024 Live Health Management. All rights reserved.</p>
-  </footer>
+    </footer>
   </body>
 </html>

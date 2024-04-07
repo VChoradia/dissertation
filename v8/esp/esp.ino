@@ -39,7 +39,8 @@ const float TEMP_TOLERANCE = 0.5; // Adjust based on testing and sensor accuracy
 
 
 AsyncWebServer server(80);
-const String devicePasskey = "vivek";
+const String deviceNickname = "choradia";
+const String devicePasskey = "choradia";
 
 String to = "+447387210693";
 String name = "Vivek Choradia";
@@ -58,8 +59,6 @@ static unsigned long lastPublishTime = 0;  // Last publish timestamp
 
 
 void setup() {
-
-  while(!Serial);
 
   Serial.begin(115200);
 
@@ -194,6 +193,23 @@ void setupServer() {
     
     server.on("/stop-publishing", handleStopPublishing);
 
+    // Handle HTTP POST request for assigning device to a user
+  server.on("/receive-user-details", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, handleAssignDeviceToUser);
+
+  // Handle HTTP POST request for unassigning device from a user
+  server.on("/clear-user-details", HTTP_POST, [](AsyncWebServerRequest *request) {
+    // Handle unassign device logic here
+    Serial.println("Device unassigned.");
+    // Reset user details
+    name = "";
+    to = "";
+    bpm_lower_threshold = 0;
+    bpm_upper_threshold = 0;
+    temp_lower_threshold = 0;
+    temp_upper_threshold = 0;
+    request->send(200, "application/json", "{\"message\":\"Device unassigned successfully.\"}");
+  });
+
     
   server.begin();
 }
@@ -276,6 +292,29 @@ void handleStopPublishing(AsyncWebServerRequest *request)
 
     request->send(200, "application/json", "{\"status\":\"success\"}");
 }
+
+// Function to handle assigning device to user
+void handleAssignDeviceToUser(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+  DynamicJsonDocument doc(1024);
+  deserializeJson(doc, data);
+
+  // Extract user details from the request body
+  name = doc["username"].as<String>();
+  to = doc["phone_number"].as<String>();
+  bpm_lower_threshold = doc["bpm_lower_threshold"].as<int>();
+  bpm_upper_threshold = doc["bpm_upper_threshold"].as<int>();
+  temp_lower_threshold = doc["temp_lower_threshold"].as<int>();
+  temp_upper_threshold = doc["temp_upper_threshold"].as<int>();
+
+  // Log received data for debugging
+  Serial.println("Received user details for device assignment:");
+  Serial.print("Name: "); Serial.println(name);
+  Serial.print("Phone Number: "); Serial.println(to);
+  // Add more logs as needed
+
+  request->send(200, "application/json", "{\"message\":\"User details received and device assigned.\"}");
+}
+
 
 void updateMovingAverage(int bpm, float tempC) {
     // Update BPM moving average

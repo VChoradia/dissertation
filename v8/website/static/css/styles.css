@@ -57,6 +57,10 @@ h2, h3 {
     transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 
+.device-card.no-device {
+    background-color: #f2dede; /* Light red; adjust color as desired */
+}
+
 .device-card:hover {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     transform: translateY(-3px);

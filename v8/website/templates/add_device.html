@@ -32,19 +32,14 @@
         <h2>Add New Device</h2>
         <form method="POST" action="/add-device" class="add-device-form">
             <div class="form-group">
-                <input type="text" id="ip" name="ip" required class="form-field" placeholder=" ">
-                <label for="ip" class="form-label">IP Address</label>
-                <i class="info-button" title="Enter IP Address:Port Number of the device.">&#9432;</i> <!-- Unicode for information symbol -->
+                <input type="text" id="nickname" name="nickname" required class="form-field" placeholder=" ">
+                <label for="nickname" class="form-label">Device Nickname</label>
+                <i class="info-button" title="Provide a unique nickname for the device.">&#9432;</i> <!-- Unicode for information symbol -->
             </div>
             <div class="form-group">
                 <input type="password" id="passkey" name="passkey" required class="form-field" placeholder=" ">
                 <label for="passkey" class="form-label">Passkey</label>
                 <i class="info-button" title="Enter passkey of the device.">&#9432;</i>
-            </div>
-            <div class="form-group">
-                <input type="text" id="nickname" name="nickname" required class="form-field" placeholder=" ">
-                <label for="nickname" class="form-label">Device Nickname</label>
-                <i class="info-button" title="Provide a unique nickname for the device.">&#9432;</i> <!-- Unicode for information symbol -->
             </div>
             <div class="form-actions">
                 <input type="submit" value="Add Device" class="submit-btn">

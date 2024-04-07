@@ -20,33 +20,26 @@
   <div class="navbar-links">
       <a href="/">Home</a>
       <a href="/about-us">About</a>
-
-      <div class="dropdown">
-        <button class="dropbtn">Devices ▼</button>
-        <div class="dropdown-content">
-            {% for device in devices %}
-                <a class="dropdown-options" href="{{ url_for('device_page', device_id=device.id) }}">{{ device.nickname }}</a>
-            {% endfor %}
-        </div>
-      </div>
       <a href="{{ url_for('add_device_page') }}">Add New Device</a>
+      <a href="{{ url_for('submit_user_details') }}">Add New User</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
   </div>
 </div>
 
-<div class="main-content {% if devices|length == 0 %}center-content{% endif %}">
-  {% if devices|length == 0 %}
+<div class="main-content {% if users|length == 0 %}center-content{% endif %}">
+  {% if users|length == 0 %}
     <div class="no-devices">
       <img src="{{ url_for('static', filename='images/no-device-added-without-bg.png') }}" alt="No Device Added" class="no-device-image"/>
-      <a href="{{ url_for('add_device_page') }}" class="big-add-device-btn">
-        <span class="plus-icon">+</span> Add New Device
+      <a href="{{ url_for('submit_user_details') }}" class="big-add-device-btn">
+        <span class="plus-icon">+</span> Add New User
       </a>
     </div>
   {% else %}
     <div class="device-container">
-        {% for device in devices %}
-        <div class="device-card" onclick="window.location.href='{{ url_for('device_page', device_id=device.id) }}'">
+        {% for user in users %}
+        <div class="device-card {{ 'no-device' if not user.device_assigned else ''}} " onclick="window.location.href='{{ url_for('user_page', user_id=user.id) }}'">
             <div class="device-info">
-                <h4 class="device-nickname">{{ device.nickname | upper }}</h4>
+                <h4 class="device-nickname">{{ user.username | upper }}</h4>
                 <p>BPM: <span id="bpm">--</span></p>
                 <p>Temperature: <span id="temperature">--</span> &deg;C</p>
             </div>

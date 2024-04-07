@@ -1,0 +1,56 @@
+<!-- user_page.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Details</title>
+</head>
+<body>
+    <h1>User Details</h1>
+
+    <form action="" method="POST">
+        <input type="hidden" name="update_details">
+        Username: <input type="text" name="username" value="{{ user.username }}"><br>
+        Phone Number: <input type="text" name="phone_number" value="{{ user.phone_number }}"><br>
+        BPM Upper Threshold: <input type="number" name="bpm_upper_threshold" value="{{ user.bpm_upper_threshold }}"><br>
+        BPM Lower Threshold: <input type="number" name="bpm_lower_threshold" value="{{ user.bpm_lower_threshold }}"><br>
+        Temperature Upper Threshold: <input type="number" name="temperature_upper_threshold" value="{{ user.temperature_upper_threshold }}"><br>
+        Temperature Lower Threshold: <input type="number" name="temperature_lower_threshold" value="{{ user.temperature_lower_threshold }}"><br>
+        <input type="submit" value="Update Details">
+    </form>
+
+    
+    {% if user.device %}
+    <h2>Currently Assigned Device</h2>
+    <p>{{ user.device.nickname }} ({{ user.device.mac_address }})</p>
+    <form method="POST">
+        <input type="hidden" name="unassign_device">
+        <input type="hidden" name="device_id_to_unassign" value="{{ user.device.id }}">
+        <input type="submit" value="Unassign Device">
+    </form>
+    {% endif %}
+
+    <h2>Assign/Switch a Device</h2>
+    <form method="POST">
+        <input type="hidden" name="assign_device">
+        <input type="hidden" name="current_device_id" value="{{ user.device.id if user.device else '' }}">
+        <select name="device_id">
+            <option value="">Select a Device</option>
+            {% for device in devices %}
+            <option value="{{ device.id }}" {{ 'selected' if user.device and device.id == user.device.id else '' }}>{{ device.nickname }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Assign/Switch Device">
+    </form>
+
+    <h2>Delete User</h2>
+    <form method="POST">
+        <input type="hidden" name="delete_user">
+        <input type="submit" value="Delete User" onclick="return confirm('Are you sure?');">
+    </form>
+
+    {% for message in get_flashed_messages() %}
+        <div>{{ message }}</div>
+    {% endfor %}
+</body>
+</html>
