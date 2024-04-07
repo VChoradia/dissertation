@@ -1,8 +1,11 @@
 # app/routes.py
-from flask import request, jsonify
+from flask import request, jsonify, Response, stream_with_context
 from . import app, db
 from .models import Organization, User, Device, DeviceData
 import requests
+from datetime import datetime
+import json
+import time
 
 @app.route('/register', methods=['POST'])
 def register_organization():
@@ -188,15 +191,17 @@ def assign_device_to_user():
     except requests.exceptions.RequestException as e:
         return jsonify({"error": f"Request to device failed: {e}"}), 500
 
-@app.route('/unassign-device/<int:device_id>', methods=['POST'])
-def unassign_device(device_id):
+@app.route('/unassign-device/<int:device_id>/<int:user_id>', methods=['POST'])
+def unassign_device(device_id, user_id):
+
     device = Device.query.get(device_id)
-    if not device:
-        return jsonify({"error": "Device not found"}), 404
+    user = User.query.get(user_id)
 
-    if not device.user_id:
-        return jsonify({"error": "Device is not currently assigned to any user"}), 400
+    if not device or not user:
+        return jsonify({"error": "Device or user not found"}), 404
 
+    if device.user_id != user_id:
+        return jsonify({"error": "Device is not assigned to the specified user"}), 400
     try:
         # Clear user details from the device by sending a request
         if device.ip_address:
@@ -208,10 +213,16 @@ def unassign_device(device_id):
 
     # Remove the link between the device and the user
     device.user_id = None
+    user.device = None
     # Optionally, clear device data associated with the device
     DeviceData.query.filter_by(device_id=device_id).delete()
 
     db.session.commit()
+
+    db.session.refresh(device)
+    db.session.refresh(user)
+
+
     return jsonify({"success": "Device unassigned successfully, user details cleared, and device data removed"}), 200
 
 
@@ -237,8 +248,6 @@ def update_user_details():
     user.temperature_upper_threshold = data.get('temperature_upper_threshold', user.temperature_upper_threshold)
     user.temperature_lower_threshold = data.get('temperature_lower_threshold', user.temperature_lower_threshold)
 
-    db.session.commit()
-
     # If a device is assigned to the user, send the updated details to the device
     if user.device:
         device = user.device
@@ -252,59 +261,57 @@ def update_user_details():
         }
 
         try:
-            response = requests.post(f"http://{device.ip_address}:80/update-user-details", json=user_details, timeout=5)
+            response = requests.post(f"http://{device.ip_address}:80/receive-user-details", json=user_details, timeout=5)
             if response.status_code == 200:
+                db.session.commit()
                 return jsonify({"success": "User details updated successfully and sent to the device"}), 200
             else:
+                db.session.rollback()
                 return jsonify({"error": "Failed to send updated user details to the device"}), 500
         except requests.exceptions.RequestException as e:
+            db.session.rollback()
             return jsonify({"error": f"Request to device failed: {e}"}), 500
     else:
         return jsonify({"success": "User details updated successfully, but no device is assigned to this user"}), 200
     
-@app.route('/device-data', methods=['POST'])
-def receive_device_data():
-    data = request.json
-    device_id = data.get('device_id')
-    bpm = data.get('bpm')
-    temperature = data.get('temperature')
-
-    # Basic validation
-    if not device_id or bpm is None or temperature is None:
-        return jsonify({"error": "Missing data"}), 400
-
-    # Find the device
-    device = Device.query.get(device_id)
-    if not device:
-        return jsonify({"error": "Device not found"}), 404
-
-    # Save the data
-    new_data = DeviceData(device_id=device_id, bpm=bpm, temperature=temperature)
-    db.session.add(new_data)
-    try:
-        db.session.commit()
-        return jsonify({"success": "Data received successfully"}), 201
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
-
 @app.route('/get-device-data/<int:device_id>', methods=['GET'])
 def get_device_data(device_id):
     # Retrieve the latest data for the specified device
-    latest_data = DeviceData.query.filter_by(device_id=device_id).order_by(DeviceData.timestamp.desc()).first()
+    def generate():
+        with app.app_context():
+            # Infinite loop to continuously poll for new data
+            while True:
+                # Query for the latest device data here
+                latest_data = DeviceData.query.filter_by(device_id=device_id).order_by(DeviceData.timestamp.desc()).first()
+                yield f"data: {json.dumps({'bpm': latest_data.bpm, 'temperature': latest_data.temperature})}\n\n"
+                time.sleep(5)  # Sleep for a bit before sending the next update
+        
+    return Response(generate(), content_type='text/event-stream', headers={'Cache-Control': 'no-cache'})
 
-    if latest_data:
-        # Return the latest data if it exists
-        data = {
-            "device_id": device_id,
-            "bpm": latest_data.bpm,
-            "temperature": latest_data.temperature,
-            "timestamp": latest_data.timestamp.isoformat()
-        }
-        return jsonify(data), 200
-    else:
-        # Return an error if no data was found for the device
-        return jsonify({"error": "No data found for device"}), 404
+@app.route('/save-device-data', methods=['POST'])
+def save_device_data():
+    data = request.get_json()
+    device_id = data.get('device_id')
+    bpm = data.get('bpm')
+    temperature = data.get('temp')
+
+    if not device_id or bpm is None or temperature is None:
+        return jsonify({"error": "Missing data"}), 400
+
+    new_device_data = DeviceData(
+        device_id=device_id,
+        bpm=bpm,
+        temperature=temperature,
+        timestamp=datetime.now()
+    )
+
+    db.session.add(new_device_data)
+    try:
+        db.session.commit()
+        return jsonify({"message": "Device data saved successfully"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
     
 @app.route('/delete-device/<int:device_id>', methods=['DELETE'])
 def delete_device(device_id):

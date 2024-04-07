@@ -41,6 +41,7 @@ const float TEMP_TOLERANCE = 0.5; // Adjust based on testing and sensor accuracy
 AsyncWebServer server(80);
 const String deviceNickname = "choradia";
 const String devicePasskey = "choradia";
+int device_id = -1;
 
 String to = "+447387210693";
 String name = "Vivek Choradia";
@@ -182,14 +183,6 @@ void publishData() {
 }
 
 void setupServer() {
-    server.on("/verify", handleVerify);
-    
-    server.on("/receive-user-data", HTTP_POST, [](AsyncWebServerRequest *request) {
-        // You might want to handle any non-body part of the request here
-    }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-        // Now call your external function
-        handleReceiveUserData(request, data, len, index, total); // Adjust the signature accordingly
-    });
     
     server.on("/stop-publishing", handleStopPublishing);
 
@@ -214,61 +207,7 @@ void setupServer() {
   server.begin();
 }
 
-void handleVerify(AsyncWebServerRequest *request)
-{
 
-    Serial.println("Received verify request");
-    // Check if the passkey parameter exists to avoid potential null pointer dereference
-    if (!request->hasParam("passkey"))
-    {
-        request->send(400, "application/json", "{\"error\":\"passkey parameter is missing\"}");
-        return;
-    }
-
-    // Now it's safe to assume the parameter exists
-    String passkey = request->getParam("passkey")->value();
-    bool verified = passkey.equals(devicePasskey); // Assuming devicePasskey is defined elsewhere
-
-    // Use the corrected case for the JSON key as per your requirement
-    DynamicJsonDocument doc(1024);
-    doc["verified"] = verified; // Capital 'V' as per your requirement
-    String response;
-    serializeJson(doc, response);
-
-    request->send(200, "application/json", response);
-}
-
-void handleReceiveUserData(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
-{
-
-    DynamicJsonDocument doc(1024); // Adjust size according to your data structure
-    DeserializationError error = deserializeJson(doc, data);
-
-    if (error)
-    {
-        Serial.print(F("deserializeJson() failed: "));
-        Serial.println(error.f_str());
-        request->send(400, "application/json", "{\"message\":\"Invalid JSON\"}");
-        return;
-    }
-
-    name = doc["userName"].as<String>();
-    to = doc["phoneNumber"].as<String>();
-    bpm_lower_threshold = doc["bpmLowerThreshold"].as<int>();
-    bpm_upper_threshold = doc["bpmUpperThreshold"].as<int>();
-    temp_lower_threshold = doc["tempUpperThreshold"].as<int>();
-    temp_upper_threshold = doc["tempLowerThreshold"].as<int>();
-
-    Serial.println("Received User Data:");
-    Serial.print("Name: ");
-    Serial.println(name);
-    Serial.print("Phone: ");
-    Serial.println(to);
-
-    isPublishing = true;
-
-    request->send(200, "application/json", "{\"status\":\"success\"}");
-}
 
 void handleStopPublishing(AsyncWebServerRequest *request)
 {
@@ -311,6 +250,8 @@ void handleAssignDeviceToUser(AsyncWebServerRequest *request, uint8_t *data, siz
   Serial.print("Name: "); Serial.println(name);
   Serial.print("Phone Number: "); Serial.println(to);
   // Add more logs as needed
+
+  isPublishing = true;
 
   request->send(200, "application/json", "{\"message\":\"User details received and device assigned.\"}");
 }

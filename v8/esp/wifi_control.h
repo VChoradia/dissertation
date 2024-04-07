@@ -41,6 +41,19 @@ void setupWiFi() {
     String response = http.getString(); // Get the response to the request
     Serial.println(httpResponseCode);   // Print return code
     Serial.println(response);           // Print request answer
+    
+    // Parse JSON response
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, response);
+    
+    // Extract device_id (assuming the server responds with a JSON object that includes device_id)
+    if (doc.containsKey("device_id")) {
+      device_id = doc["device_id"]; // Store the device ID in the global variable
+      Serial.print("Device ID: ");
+      Serial.println(device_id);
+    } else {
+      Serial.println("Device ID not received in the response");
+    }
   } else {
     Serial.print("Error on sending POST: ");
     Serial.println(httpResponseCode);

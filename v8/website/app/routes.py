@@ -303,7 +303,7 @@ def user_page(user_id):
             
             # Step 1: Unassign the current device if a different device is selected
             if current_device_id and (current_device_id != new_device_id):
-                unassign_response = requests.post(f'{API_BASE_URL}/unassign-device/{current_device_id}')
+                unassign_response = requests.post(f'{API_BASE_URL}/unassign-device/{current_device_id}/{user_id}')
                 if unassign_response.status_code == 200:
                     flash('Current device unassigned successfully', 'info')
                 else:
@@ -321,9 +321,9 @@ def user_page(user_id):
 
         elif 'unassign_device' in request.form:
 
-            device_id = request.form.get('device_id')
+            device_id = request.form.get('device_id_to_unassign')
             if device_id:
-                response = requests.post(f'{API_BASE_URL}/unassign-device/{device_id}')
+                response = requests.post(f'{API_BASE_URL}/unassign-device/{device_id}/{user_id}')
                 flash('Device unassigned successfully' if response.status_code == 200 else 'Device unassignment failed', 'info')
 
         elif 'delete_user' in request.form:

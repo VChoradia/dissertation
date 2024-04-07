@@ -4,8 +4,34 @@
 <head>
     <meta charset="UTF-8">
     <title>User Details</title>
+    <script>
+        // Function to start listening for live data updates using Server-Sent Events
+        function startLiveDataStream(deviceId) {
+            if (!deviceId) {
+                console.log("No device ID provided.");
+                return;
+            }
+            if (typeof(EventSource) !== "undefined") {
+                const source = new EventSource(`http://143.167.38.207:5500/get-device-data/${deviceId}`);
+
+                source.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    document.getElementById("bpm").textContent = "BPM: " + data.bpm;
+                    document.getElementById("temperature").textContent = "Temperature: " + data.temperature + " °C";
+                };
+
+                source.onerror = function() {
+                    console.log("Failed to connect to live data stream.");
+                    // Optionally, handle the error or close the source
+                    source.close();
+                };
+            } else {
+                document.getElementById("live-data").innerHTML = "Your browser does not support Server-Sent Events.";
+            }
+        }
+    </script>
 </head>
-<body>
+<body onload="startLiveDataStream('{{ user.device.id if user.device else '' }}')">
     <h1>User Details</h1>
 
     <form action="" method="POST">
@@ -44,13 +70,27 @@
     </form>
 
     <h2>Delete User</h2>
-    <form method="POST">
+    <form method="POST" id="delete-user-form">
         <input type="hidden" name="delete_user">
         <input type="submit" value="Delete User" onclick="return confirm('Are you sure?');">
     </form>
 
+    <div class="live-data-container">
+        <div class="live-data">
+          <h3 class="section-title">Live Data</h3>
+          <div class="data-point">
+            <span class="icon heart">&#x2764;</span> <!-- Replace with an actual heartbeat icon -->
+            <span id="bpm">BPM: --</span>&nbsp;BPM
+          </div>
+          <div class="data-point">
+            <span class="icon">&#127777;</span> <!-- Replace with an actual temperature icon -->
+            <span id="temperature">Temperature: --</span>&nbsp;°C
+          </div>
+        </div>
+
     {% for message in get_flashed_messages() %}
         <div>{{ message }}</div>
     {% endfor %}
+
 </body>
 </html>

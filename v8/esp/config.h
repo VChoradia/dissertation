@@ -20,8 +20,8 @@ int lastButtonState = LOW;  // Last state of the button
 
 
 const char* host = "143.167.38.207"; // IP address of your server
-const uint16_t httpPort = 5000; // Flask default port is 5000
-String serverName = "http://" + String(host) + ":" + String(httpPort) + "/sendDetails";
+const uint16_t httpPort = 5500; // Flask default port is 5000
+String serverName = "http://" + String(host) + ":" + String(httpPort) + "/save-device-data";
 
 WiFiClient espClient;
 
@@ -63,6 +63,7 @@ void ledOff() {
     // Your JSON data
     const int capacity = JSON_OBJECT_SIZE(2); // Adjust based on the number of fields
     StaticJsonDocument<capacity> doc;
+    doc["device_id"] = device_id;
     doc["bpm"] = bpm;
     doc["temp"] = temp;
 
