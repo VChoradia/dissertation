@@ -3,8 +3,7 @@ from flask import Flask, request, jsonify, render_template, request, redirect, u
 import time
 import json
 import requests
-from . import app, db
-from .models import Device, UserDetail
+from . import app
 from functools import wraps
 
 from threading import Lock
@@ -33,6 +32,7 @@ def register():
     if response.status_code == 201:
         # Assuming registration logs the user in as well
         session['organization_id'] = response.json().get('organization_id')
+        session['organization_name'] = response.json().get('organization_name')
         return redirect(url_for('index'))
     else:
         return f"Error: {response.json().get('error')}"
@@ -46,6 +46,7 @@ def login():
     response = requests.post(API_BASE_URL +'/login', json=data)
     if response.status_code == 200:
         session['organization_id'] = response.json().get('organization_id')
+        session['organization_name'] = response.json().get('organization_name')
         return redirect(url_for('index'))
     else:
         return f"Error: {response.json().get('error')}"
@@ -55,14 +56,15 @@ def login():
 def index():
     if 'organization_id' in session:
         organization_id = session.get('organization_id')
+        organization_name = session.get('organization_name')
         try:
             response = requests.get(API_BASE_URL +'/users?organization_id='+ str(organization_id))
             print(response)
             if response.status_code == 200:
                 users = response.json()  
-                return render_template('index.html', users=users)
+                return render_template('index.html', users=users, organization_name=organization_name)
             else:
-                return render_template('index.html', users={})
+                return render_template('index.html', users={}, organization_name=organization_name)
         except requests.RequestException as e:
             # Handle request exceptions (e.g., network errors)
             return str(e), 500
@@ -83,11 +85,8 @@ def logout():
 @app.route('/add-device-page')
 @login_required
 def add_device_page():
-    return render_template('add_device.html')
-
-@app.route('/about-us')
-def about_us_page():
-    return render_template('about_us.html')
+    organization_name = session.get('organization_name')
+    return render_template('add_device.html', organization_name=organization_name)
 
 @app.route('/add-device', methods=['POST'])
 @login_required
@@ -119,6 +118,7 @@ def add_device():
 @login_required
 def submit_user_details():
     organization_id = session.get('organization_id')
+    organization_name = session.get('organization_name')
     if not organization_id:
         # Assuming there's a page to handle this scenario
         flash('Organization ID not found. Please log in.')
@@ -136,7 +136,7 @@ def submit_user_details():
         unassigned_devices = []
     
     # Render the submit_user_details.html template with the list of unassigned devices
-    return render_template('submit_user_details.html', unassigned_devices=unassigned_devices)
+    return render_template('submit_user_details.html', unassigned_devices=unassigned_devices, organization_name=organization_name)
     
 @app.route('/add-user', methods=['POST'])
 @login_required
@@ -187,101 +187,8 @@ def add_user_page():
     
     return redirect(url_for('index'))
 
-
-
-def verify_device(ip_address, passkey):
-    # This is the endpoint on the ESP32S3 for verification. Adjust as needed.
-    device_verification_url = f"http://{ip_address}/verify?passkey={passkey}"
-    
-    try:
-        # Send passkey for verification. Adjust the data sent as per your device's API.
-        response = requests.get(device_verification_url, timeout=5)
-        if response.status_code == 200 and response.json().get('verified'):
-            return True
-    except requests.exceptions.RequestException as e:
-        # This catches any request errors, including connection failures and timeouts.
-        print(f"Request failed: {e}")
-    return False
-
-
-def send_user_data_to_device(ip_address, user_name, phone_number, bpm_upper_threshold, bpm_lower_threshold, temperature_upper_threshold, temperature_lower_threshold):
-    print(user_name, phone_number, bpm_upper_threshold, bpm_lower_threshold, temperature_upper_threshold, temperature_lower_threshold)
-    device_url = f"http://{ip_address}/receive-user-data"
-    data = {
-        'userName': user_name,
-        'phoneNumber': phone_number,
-        'bpmUpperThreshold': bpm_upper_threshold,
-        'bpmLowerThreshold': bpm_lower_threshold,
-        'tempUpperThreshold': temperature_upper_threshold,
-        'tempLowerThreshold': temperature_lower_threshold
-    }
-    try:
-        response = requests.post(device_url, json=data, timeout=5)
-        if response.status_code == 200:
-            print("Successfully sent user data to the device.")
-            return True
-        else:
-            print("Failed to send user data. Device responded with an error.")
-            return False
-    except requests.exceptions.RequestException as e:
-        print(f"Failed to send user data to the device: {e}")
-        return False
-
-
-@app.route('/device/<device_id>', methods=['GET', 'POST'])
-@login_required
-def device_page(device_id):
-    # Fetch the specific device using the device_id
-    device = Device.query.get(device_id)
-    if device is None:
-        flash('Device not found.', 'error')
-        return redirect(url_for('index'))
-    
-     # Check if user details have already been submitted for this device
-    user_detail = UserDetail.query.filter_by(device_id=device_id).first()
-    if user_detail:
-        # If details exist, redirect to the live data page
-        return redirect(url_for('live_data_page', device_id=device_id))
-
-    if request.method == 'POST':
-        # Process the submitted user details form
-        user_name = request.form.get('user_name')
-        phone_number = request.form.get('phone_number')
-        bpm_upper_threshold = request.form.get('bpm_upper_threshold')
-        bpm_lower_threshold = request.form.get('bpm_lower_threshold')
-        temperature_upper_threshold = request.form.get('temperature_upper_threshold')
-        temperature_lower_threshold = request.form.get('temperature_lower_threshold')
-
-        
-        # Attempt to send user data to the device
-        success = send_user_data_to_device(device.ip_address, user_name, phone_number, bpm_upper_threshold, bpm_lower_threshold, temperature_upper_threshold, temperature_lower_threshold)
-        if success:
-            # Save user details to the database only if successful
-            new_user_detail = UserDetail(device_id=device.id, 
-                                         user_name=user_name, 
-                                         phone_number=phone_number,
-                                         bpm_upper_threshold=bpm_upper_threshold, 
-                                         bpm_lower_threshold=bpm_lower_threshold,
-                                         temperature_upper_threshold=temperature_upper_threshold,
-                                         temperature_lower_threshold=temperature_lower_threshold)
-            
-            db.session.add(new_user_detail)
-            try:
-                db.session.commit()
-                flash('User details submitted successfully!', 'success')
-            except Exception as e:
-                db.session.rollback()
-                flash('There was an error saving the user details.', 'error')
-                app.logger.error(f'Error: {e}')
-        else:
-            flash('Failed to send user data to the device.', 'error')
-
-        return redirect(url_for('device_page', device_id=device_id))
-
-    # Render the device page with the device details form
-    return render_template('submit_user_details.html', device=device)
-
 @app.route('/user/<int:user_id>', methods=['GET', 'POST'])
+@login_required
 def user_page(user_id):
     if request.method == 'POST':
         if 'update_details' in request.form:
@@ -342,23 +249,6 @@ def user_page(user_id):
 
     return render_template('user_page.html', user=user, devices=devices)
 
-@app.route('/device/<device_id>/live-data')
-@login_required
-def live_data_page(device_id):
-    device = Device.query.get(device_id)
-    print(device)
-    user_detail = UserDetail.query.filter_by(device_id=device_id).first()
-
-    if device is None:
-        flash('Device not found.', 'error')
-        return redirect(url_for('index'))
-
-    # Logic to fetch live data from the device or database would go here
-    bpm = None  # Placeholder for actual BPM data
-    temperature = None  # Placeholder for actual temperature data
-
-    return render_template('live_data.html', device=device, user_detail=user_detail, bpm=bpm, temperature=temperature)
-
 @app.route('/device/<device_id>/update-details', methods=['POST'])
 @login_required
 def update_device_user_details(device_id):
@@ -417,27 +307,6 @@ def stop_publishing_data_to_device(ip_address):
         return False
 
 
-@app.route('/device/<device_id>/delete', methods=['POST'])
-def delete_device(device_id):
-    device = Device.query.get(device_id)
-    if device is None:
-        flash('Device not found.', 'error')
-        return redirect(url_for('index'))
-    
-    # Send request to ESP device to stop publishing data
-    stop_publishing_success = stop_publishing_data_to_device(device.ip_address)
-    if not stop_publishing_success:
-        flash('Failed to stop device from publishing data.', 'error')
-        return redirect(url_for('live_data_page', device_id=device_id))
-
-    # If successful, delete device and associated user details
-    UserDetail.query.filter_by(device_id=device_id).delete()
-    Device.query.filter_by(id=device_id).delete()
-    db.session.commit()
-    flash('Device and associated user details deleted successfully.', 'success')
-
-    return redirect(url_for('index'))
-
 @app.route('/sendDetails', methods=['POST'])
 def receive_details():
     global most_recent_bpm, most_recent_temp
@@ -466,3 +335,24 @@ def data_stream():
             time.sleep(1)
     
     return Response(stream_with_context(generate()), content_type='text/event-stream')
+
+
+@app.route('/about-us')
+@login_required
+def organization_details():
+    organization_id = session.get('organization_id')
+    organization_name = session.get('organization_name')
+    if not organization_id:
+        flash('Organization ID not found. Please log in.')
+        return redirect(url_for('login'))
+
+    # Fetch users
+    users_response = requests.get(f'{API_BASE_URL}/users?organization_id={organization_id}')
+    users = users_response.json() if users_response.ok else []
+
+    # Fetch devices
+    devices_response = requests.get(f'{API_BASE_URL}/devices?organization_id={organization_id}')
+    devices = devices_response.json() if devices_response.ok else []
+
+    # Render the organization_details.html template with the lists of users and devices
+    return render_template('about_us.html', users=users, devices=devices, organization_name=organization_name)

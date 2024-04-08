@@ -1,0 +1,78 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background:  #e6f7ff;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-content h2 {
+    color: #444;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.toggle-buttons {
+    display: flex;
+    border-bottom: 4px solid  #2C3E50; /* Dark purplish-blue border */
+    margin-bottom: 20px;
+    overflow: hidden; /* Prevents border from extending past the button width */
+}
+
+/* Styling buttons to fill the form width together */
+.toggle-buttons button {
+    flex: 1; /* Each button will take up equal space */
+    background-color: #fff; /* Button background to match form */
+    color:  #2C3E50; /* Dark purplish-blue text color */
+    padding: 15px 0; /* Larger padding for a bigger button */
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* The active button style */
+.toggle-buttons button.active {
+    border-bottom: 4px solid  #2C3E50; /* Dark purplish-blue bottom border for the active button */
+    font-weight: bold;
+    color:  #2C3E50;
+    background-color: #f9f9f9; /* Slightly different background for the active tab */
+}
+
+/* Hover effect */
+.toggle-buttons button:hover {
+    background-color: #f9f9f9; /* Slight background change on hover */
+}
+
+input[type="text"], input[type="password"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+input[type="submit"]:hover {
+    background-color: #45a049;
+}

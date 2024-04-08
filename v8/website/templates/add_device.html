@@ -10,23 +10,18 @@
 </head>
 <body>
 
-    <div class="navbar">
-        <div class="navbar-header">
-            <span>Live Health Management</span>
-        </div>
-        <div class="navbar-links">
-            <a href="/">Home</a>
-            <div class="dropdown">
-              <button class="dropbtn">Devices ▼</button>
-              <div class="dropdown-content">
-                  {% for device in devices %}
-                      <a class="dropdown-options" href="{{ url_for('device_page', device_id=device.id) }}">{{ device.nickname }}</a>
-                  {% endfor %}
-              </div>
-            </div>
-            <a href="{{ url_for('add_device_page') }}">Add New Device</a>
-        </div>
-      </div>
+    <!-- Navbar -->
+<div class="navbar">
+    <div class="navbar-header">
+        <a href="/"><span>Live Health Management for {{organization_name}}</span></a>
+    </div>
+    <div class="navbar-links">
+        <a href="{{ url_for('add_device_page') }}">Add New Device</a>
+        <a href="{{ url_for('submit_user_details') }}">Add New User</a>
+        <a href="/about-us">About</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+  </div>
     
       <div class="add-device-form-container">
         <h2>Add New Device</h2>

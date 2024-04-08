@@ -30,7 +30,7 @@ body {
 .user-details-form {
   width: 100%;
   max-width: 500px;
-  margin: 50px auto;
+  margin: 4% auto;
   padding: 2rem;
   background: #ffffff;
   border-radius: 8px;
@@ -38,8 +38,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-top: 1%;
+  margin-bottom: 1%;
 
 }
 
@@ -172,4 +172,27 @@ ul.messages {
     font-size: 14px;
     margin-top: auto; /* This line pushes the footer to the bottom */
     width: 100%;
+}
+
+.terms-checkbox {
+  margin-top: 10px;
+}
+
+.terms-checkbox input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.terms-checkbox label {
+  display: inline-block;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.terms-checkbox a {
+  color: #5c6bc0;
+  text-decoration: underline;
+}
+
+.terms-checkbox a:hover {
+  text-decoration: none;
 }

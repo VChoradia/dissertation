@@ -23,15 +23,18 @@
     />
   </head>
   <body>
-    <div class="navbar">
-      <div class="navbar-header">
-        <span>Live Health Management</span>
-      </div>
-      <div class="navbar-links">
-        <a href="/">Home</a>
-        <a href="{{ url_for('add_device_page') }}">Add New Device</a>
-      </div>
-    </div>
+    <!-- Navbar -->
+<div class="navbar">
+  <div class="navbar-header">
+      <a href="/"><span>Live Health Management for {{organization_name}}</span></a>
+  </div>
+  <div class="navbar-links">
+      <a href="{{ url_for('add_device_page') }}">Add New Device</a>
+      <a href="{{ url_for('submit_user_details') }}">Add New User</a>
+      <a href="/about-us">About</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+</div>
 
     <form
       method="POST"
@@ -152,6 +155,15 @@
           <option value="">No unassigned devices available</option>
           {% endif %}
         </select>
+      </div>
+
+      <!-- Terms and Conditions Checkbox -->
+      <div class="form-group terms-checkbox">
+        <input type="checkbox" id="terms" name="terms" required>
+        <label for="terms">
+          I agree to the <a href="{{ url_for('static', filename='terms.pdf') }}" download="Terms_and_Conditions.pdf">Terms and Conditions</a> and 
+          <a href="{{ url_for('static', filename='privacy.pdf') }}" download="Privacy_Policy.pdf">Privacy Policy</a>.
+        </label>
       </div>
 
       <input type="submit" value="Submit Details" class="submit-btn" />

@@ -23,6 +23,10 @@ body {
     width: 100%; /* Full width */
 }
 
+.navbar-header a {
+    text-decoration: none;
+}
+
 .navbar-header span {
     font-weight: 500;
     font-size: 1.5rem;

@@ -28,7 +28,7 @@ def register_organization():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-    return jsonify({"success": "Organization registered successfully", "organization_id": new_organization.id}), 201
+    return jsonify({"success": "Organization registered successfully", "organization_id": new_organization.id, "organization_name": name}), 201
 
 @app.route('/login', methods=['POST'])
 def login_organization():
@@ -44,7 +44,7 @@ def login_organization():
     if organization and organization.check_password(password):
         # For simplicity, returning a success message. 
         # In a real app, you might return a token for authenticated routes.
-        return jsonify({"success": "Login successful", "organization_id": organization.id}), 200
+        return jsonify({"success": "Login successful", "organization_id": organization.id, "organization_name": name}), 200
     else:
         return jsonify({"error": "Invalid name or password"}), 401
 
@@ -383,13 +383,11 @@ def delete_organization(organization_id):
 
 @app.route('/devices', methods=['GET'])
 def get_devices():
-    # Retrieve organization_id from query parameters
     organization_id = request.args.get('organization_id', default=None, type=int)
 
     if organization_id is None:
         return jsonify({"error": "organization_id is required"}), 400
 
-    # Filter devices by the provided organization_id
     devices = Device.query.filter_by(organization_id=organization_id).all()
 
     devices_list = [{
@@ -397,22 +395,27 @@ def get_devices():
         'mac_address': device.mac_address,
         'ip_address': device.ip_address,
         'nickname': device.nickname,
-        'is_assigned_to_user': device.user_id is not None
+        'is_assigned_to_user': device.user_id is not None,
+        'assigned_user': device.user.username if device.user else None  # Get username of the assigned user
     } for device in devices]
 
     return jsonify(devices_list), 200
 
 @app.route('/users', methods=['GET'])
 def get_users():
-
     organization_id = request.args.get('organization_id', default=None, type=int)
 
+    if organization_id is None:
+        return jsonify({"error": "organization_id is required"}), 400
+
     users = User.query.filter_by(organization_id=organization_id).all()
+
     users_list = [{
         'id': user.id,
         'username': user.username,
-        'device_assigned': user.device is not None 
+        'device_assigned': user.device.mac_address if user.device else None  # Get MAC address of the assigned device
     } for user in users]
+
     return jsonify(users_list), 200
 
 @app.route('/user/<int:user_id>', methods=['GET'])

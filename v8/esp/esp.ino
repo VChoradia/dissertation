@@ -43,8 +43,8 @@ const String deviceNickname = "choradia";
 const String devicePasskey = "choradia";
 int device_id = -1;
 
-String to = "+447387210693";
-String name = "Vivek Choradia";
+String to = "";
+String name = "";
 int bpm_lower_threshold = 60;
 int bpm_upper_threshold = 220;
 int temp_lower_threshold = 32;

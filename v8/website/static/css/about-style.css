@@ -1,23 +1,67 @@
-/* card-styles.css */
-.card {
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    transition: 0.3s;
-    width: 60%; /* Increased width */
-    height: auto; /* Adjust height as needed, or auto for content-based height */
-    margin: 2rem auto;
-    padding: 2rem;
-    border-radius: 15px; /* Rounded edges */
-    background-color: #f0f0f0; /* New background color, choose your preference */
+body {
+    margin: 0;
     font-family: 'Roboto', sans-serif;
+    background-color: #e6f7ff;
+    color: #333;
 }
 
-.card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+.about-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    text-align: center;
 }
 
-.card-content {
-    padding: 2px 16px;
+.greeting {
+    color: #2C3E50;
+    margin-bottom: 40px;
 }
+
+section {
+    margin-bottom: 40px;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    background-color: #fff;
+}
+
+th, td {
+    text-align: left;
+    padding: 16px;
+}
+
+th {
+    background-color: #2C3E50;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #ddd; /* Add hover effect for rows */
+}
+
+@media (max-width: 768px) {
+    .about-container {
+        margin: 20px;
+        padding: 10px;
+    }
+    
+    th, td {
+        padding: 10px;
+    }
+}
+
 
 .footer {
     text-align: center;

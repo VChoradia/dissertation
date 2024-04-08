@@ -4,6 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <title>User Details</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='images/icon.png') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/user-page-styles.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/navbar-styles.css') }}"
+    />
     <script>
         // Function to start listening for live data updates using Server-Sent Events
         function startLiveDataStream(deviceId) {
@@ -32,65 +49,195 @@
     </script>
 </head>
 <body onload="startLiveDataStream('{{ user.device.id if user.device else '' }}')">
-    <h1>User Details</h1>
 
-    <form action="" method="POST">
-        <input type="hidden" name="update_details">
-        Username: <input type="text" name="username" value="{{ user.username }}"><br>
-        Phone Number: <input type="text" name="phone_number" value="{{ user.phone_number }}"><br>
-        BPM Upper Threshold: <input type="number" name="bpm_upper_threshold" value="{{ user.bpm_upper_threshold }}"><br>
-        BPM Lower Threshold: <input type="number" name="bpm_lower_threshold" value="{{ user.bpm_lower_threshold }}"><br>
-        Temperature Upper Threshold: <input type="number" name="temperature_upper_threshold" value="{{ user.temperature_upper_threshold }}"><br>
-        Temperature Lower Threshold: <input type="number" name="temperature_lower_threshold" value="{{ user.temperature_lower_threshold }}"><br>
-        <input type="submit" value="Update Details">
-    </form>
+    <!-- Navbar -->
+<div class="navbar">
+    <div class="navbar-header">
+        <a href="/"><span>Live Health Management for {{organization_name}}</span></a>
+    </div>
+    <div class="navbar-links">
+        <a href="{{ url_for('add_device_page') }}">Add New Device</a>
+        <a href="{{ url_for('submit_user_details') }}">Add New User</a>
+        <a href="/about-us">About</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+  </div>
 
-    
-    {% if user.device %}
-    <h2>Currently Assigned Device</h2>
-    <p>{{ user.device.nickname }} ({{ user.device.mac_address }})</p>
-    <form method="POST">
-        <input type="hidden" name="unassign_device">
-        <input type="hidden" name="device_id_to_unassign" value="{{ user.device.id }}">
-        <input type="submit" value="Unassign Device">
-    </form>
-    {% endif %}
+    <div class="content-container">
 
-    <h2>Assign/Switch a Device</h2>
-    <form method="POST">
-        <input type="hidden" name="assign_device">
-        <input type="hidden" name="current_device_id" value="{{ user.device.id if user.device else '' }}">
-        <select name="device_id">
-            <option value="">Select a Device</option>
-            {% for device in devices %}
-            <option value="{{ device.id }}" {{ 'selected' if user.device and device.id == user.device.id else '' }}>{{ device.nickname }}</option>
-            {% endfor %}
-        </select>
-        <input type="submit" value="Assign/Switch Device">
-    </form>
+        <div class="form-section">
 
-    <h2>Delete User</h2>
-    <form method="POST" id="delete-user-form">
-        <input type="hidden" name="delete_user">
-        <input type="submit" value="Delete User" onclick="return confirm('Are you sure?');">
-    </form>
+            <form
+                method="POST"
+                action=""
+                class="user-details-form"
+                >
 
-    <div class="live-data-container">
-        <div class="live-data">
-          <h3 class="section-title">Live Data</h3>
-          <div class="data-point">
-            <span class="icon heart">&#x2764;</span> <!-- Replace with an actual heartbeat icon -->
-            <span id="bpm">BPM: --</span>&nbsp;BPM
-          </div>
-          <div class="data-point">
-            <span class="icon">&#127777;</span> <!-- Replace with an actual temperature icon -->
-            <span id="temperature">Temperature: --</span>&nbsp;°C
-          </div>
+                <h2>Update User Details</h2>
+
+                <input type="hidden" name="update_details">
+
+                <div class="form-group">
+                    <label for="username" class="form-label">User's Name</label>
+                    <input
+                    type="text"
+                    id="user_name"
+                    name="username"
+                    required
+                    class="form-field"
+                    value="{{ user.username }}"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="phone_number" class="form-label">Phone Number</label>
+                    <input
+                    type="text"
+                    id="phone_number"
+                    name="phone_number"
+                    required
+                    class="form-field"
+                    value="{{ user.phone_number }}"
+                    />
+                </div>
+
+                <div class="slider-group">
+                    <label for="bpm_upper_threshold" class="form-label"
+                    >BPM Upper Threshold</label
+                    >
+                    <input
+                    type="range"
+                    id="bpm_upper_threshold"
+                    name="bpm_upper_threshold"
+                    required
+                    min="0"
+                    max="300"
+                    value="{{ user.bpm_upper_threshold }}"
+                    class="slider"
+                    />
+                    <span id="bpm_upper_value" class="slider-value">120</span>&nbsp;bpm
+                </div>
+
+                <div class="slider-group">
+                    <label for="bpm_lower_threshold" class="form-label"
+                    >BPM Lower Threshold</label
+                    >
+                    <input
+                    type="range"
+                    id="bpm_lower_threshold"
+                    name="bpm_lower_threshold"
+                    required
+                    min="0"
+                    max="300"
+                    value="{{ user.bpm_lower_threshold }}"
+                    class="slider"
+                    />
+                    <span id="bpm_lower_value" class="slider-value">60</span>&nbsp;bpm
+                </div>
+
+                <div class="slider-group">
+                    <label for="temperature_upper_threshold" class="form-label"
+                    >Temperature Upper Threshold</label
+                    >
+                    <input
+                    type="range"
+                    id="temperature_upper_threshold"
+                    name="temperature_upper_threshold"
+                    required
+                    min="20"
+                    max="40"
+                    value="{{ user.temperature_upper_threshold }}"
+                    class="slider"
+                    />
+                    <span id="temperature_upper_value" class="slider-value">38</span> °C
+                </div>
+
+                <div class="slider-group">
+                    <label for="temperature_lower_threshold" class="form-label"
+                    >Temperature Lower Threshold</label
+                    >
+                    <input
+                    type="range"
+                    id="temperature_lower_threshold"
+                    name="temperature_lower_threshold"
+                    required
+                    min="20"
+                    max="40"
+                    value="{{ user.temperature_lower_threshold }}"
+                    class="slider"
+                    />
+                    <span id="temperature_lower_value" class="slider-value">35</span> °C
+                </div>
+
+                <input type="submit" value="Update Details" class="submit-btn" />
+            </form>
+
         </div>
+
+        <div class="info-section">
+            
+            <div id="live-data-block" class="info-block">
+                <h3 class="section-title">Live Data</h3>
+                <div class="data-point">
+                    <span class="icon heart"></span>
+                    <span id="bpm">BPM: --</span>
+                </div>
+                <div class="data-point">
+                    <span class="icon temperature"></span>
+                    <span id="temperature">Temperature: --</span>
+                </div>
+            </div>
+          
+            {% if user.device %}
+            <div id="current-assigned-block" class="info-block">
+                <h3>Currently Assigned Device</h3>
+                <br>
+                <p>{{ user.device.nickname }} ({{ user.device.mac_address }})</p>
+                <br>
+                <form method="POST">
+                    <input type="hidden" name="unassign_device">
+                    <input type="hidden" name="device_id_to_unassign" value="{{ user.device.id }}">
+                    <input type="submit" value="Unassign Device" class="button-unassign">
+                </form>
+            </div>
+            {% endif %}
+          
+            <div id="assign-block" class="info-block">
+                <h3>Assign/Switch a Device</h3>
+                <br>
+                <form method="POST">
+                    <input type="hidden" name="assign_device">
+                    <input type="hidden" name="current_device_id" value="{{ user.device.id if user.device else '' }}">
+                    <select name="device_id" class="device-selector">
+                        <option value="">Select a Device</option>
+                        {% for device in devices %}
+                        <option value="{{ device.id }}" {{ 'selected' if user.device and device.id == user.device.id else '' }}>{{ device.nickname }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" value="Assign/Switch Device" class="button-assign">
+                </form>
+            </div>
+          
+            <div id="delete-user-block" class="info-block full-button">
+                <form method="POST" id="delete-user-form" onsubmit="return confirm('Are you sure?');">
+                    <input type="hidden" name="delete_user">
+                    <button type="submit" class="button-delete full-width-button">Delete User</button>
+                </form>
+            </div>
+          
+        </div>
+
+    </div>
 
     {% for message in get_flashed_messages() %}
         <div>{{ message }}</div>
     {% endfor %}
 
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Live Health Management. All rights reserved.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/submit-user-details-script.js') }}"></script>
 </body>
 </html>
