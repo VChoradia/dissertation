@@ -24,28 +24,42 @@
     <script>
         // Function to start listening for live data updates using Server-Sent Events
         function startLiveDataStream(deviceId) {
-            if (!deviceId) {
-                console.log("No device ID provided.");
-                return;
-            }
-            if (typeof(EventSource) !== "undefined") {
-                const source = new EventSource(`http://143.167.38.207:5500/get-device-data/${deviceId}`);
+    if (!deviceId) {
+        console.log("No device ID provided.");
+        return;
+    }
 
-                source.onmessage = function(event) {
-                    const data = JSON.parse(event.data);
-                    document.getElementById("bpm").textContent = "BPM: " + data.bpm;
-                    document.getElementById("temperature").textContent = "Temperature: " + data.temperature + " °C";
-                };
+    if (typeof(EventSource) !== "undefined") {
+        let source = new EventSource(`http://143.167.38.207:5500/get-device-data/${deviceId}`);
 
-                source.onerror = function() {
-                    console.log("Failed to connect to live data stream.");
-                    // Optionally, handle the error or close the source
-                    source.close();
-                };
+        source.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            document.getElementById("bpm").textContent = "BPM: " + data.bpm;
+            document.getElementById("temperature").textContent = "Temperature: " + data.temperature + " °C";
+        };
+
+        source.onerror = function(event) {
+            console.log("Failed to connect to live data stream. Attempting to reconnect...");
+            source.close();
+            // Attempt to reconnect after 5 seconds
+            setTimeout(() => startLiveDataStream(deviceId), 5000);
+        };
+
+        // Close the SSE connection when the page is not visible
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden') {
+                source.close();
+                console.log("SSE closed due to page being hidden.");
             } else {
-                document.getElementById("live-data").innerHTML = "Your browser does not support Server-Sent Events.";
+                startLiveDataStream(deviceId);
+                console.log("Reconnecting SSE as page is visible again.");
             }
-        }
+        });
+    } else {
+        document.getElementById("live-data").innerHTML = "Your browser does not support Server-Sent Events.";
+    }
+}
+
     </script>
 </head>
 <body onload="startLiveDataStream('{{ user.device.id if user.device else '' }}')">
@@ -53,7 +67,7 @@
     <!-- Navbar -->
 <div class="navbar">
     <div class="navbar-header">
-        <a href="/"><span>Live Health Management for {{organization_name}}</span></a>
+        <a href="/"><span>VitalMonitor for {{organization_name}}</span></a>
     </div>
     <div class="navbar-links">
         <a href="{{ url_for('add_device_page') }}">Add New Device</a>
@@ -235,7 +249,7 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2024 Live Health Management. All rights reserved.</p>
+        <p>&copy; 2024 VitalMonitor. All rights reserved.</p>
     </footer>
 
     <script src="{{ url_for('static', filename='js/submit-user-details-script.js') }}"></script>

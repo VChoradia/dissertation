@@ -87,7 +87,7 @@ void loop() {
   int currentButtonState = digitalRead(SWITCH_PIN);
   // Check if button state has changed from LOW to HIGH (button press)
   if (currentButtonState == HIGH && lastButtonState == LOW) {
-    Serial.print("Button pressed");
+    Serial.println("Button pressed");
     isSwitchOn = !isSwitchOn;  // Toggle the publishing state
     if (isPublishing && isSwitchOn) {
       ledOn();
@@ -121,10 +121,7 @@ void publishData() {
 
     if (!nameFeed.publish(name.c_str())) {
       Serial.println(F("Failed Name"));
-    } else {
-      Serial.println(F("OK! Name"));
-    }
-
+    } 
     if (!mobileNumberFeed.publish(to.c_str())) {
       Serial.println(F("Failed Mobile Number Feed"));
     } 
@@ -133,9 +130,9 @@ void publishData() {
     if (pulseSensor.sawStartOfBeat()) {
       bpm = pulseSensor.getBeatsPerMinute();
     } else {
-      bpm = 0;  // Consider how you want to handle 0 BPM.
+      bpm = 0; 
+      Serial.println("Warning: Zero BPM read, possible sensor error.");
     }
-    
 
     tempSensors.requestTemperatures();
     tempC = tempSensors.getTempCByIndex(0);
@@ -151,7 +148,7 @@ void publishData() {
     
      if (abs(bpm - bpmMovingAverage) < BPM_TOLERANCE && abs(tempC - tempMovingAverage) < TEMP_TOLERANCE) {
 
-      // Publish data to MQTT
+    // Publish data to MQTT
     if(bpm >0) {
       if (!bpmFeed.publish(bpm)) {
         Serial.println(F("Failed BPM"));
@@ -161,23 +158,25 @@ void publishData() {
       Serial.println(F("Failed Temp"));
     } 
     
-        if(tempC > temp_upper_threshold || tempC < temp_lower_threshold || (bpm > bpm_upper_threshold &&  bpm>0) || (bpm < bpm_lower_threshold && bpm>0) ) {
+      if(tempC > temp_upper_threshold || tempC < temp_lower_threshold || (bpm > bpm_upper_threshold &&  bpm>0) || (bpm < bpm_lower_threshold && bpm>0) ) {
         unsigned long currentMillis = millis();  // Reuse currentMillis defined earlier in loop
         // Check if at least 30 minutes (1800000 milliseconds) have passed
         if (currentMillis - lastSMSTime >= 1800000) {
-            char smsString[240]; 
-            sprintf(smsString, "Patient %s's Health Alert: Body Temperature has crossed %.2f°C and current BPM is %d", name, tempC, bpm);
-            if (sendSMS(smsString)) {  // Assuming sendSMS returns true if SMS was successfully sent
-                lastSMSTime = currentMillis;  // Update the last SMS timestamp
-                Serial.println("SMS sent successfully");
-            } else {
-                Serial.println("Failed to send SMS");
-            }
-        }
-        }
-     }
+          char smsString[240]; 
+          sprintf(smsString, "%s's Health Alert: Body Temperature has crossed %.2f°C and current BPM is %d.", name, tempC, bpm);
+          if (sendSMS(smsString)) {  // Assuming sendSMS returns true if SMS was successfully sent
+              lastSMSTime = currentMillis;  // Update the last SMS timestamp
+              Serial.println("SMS sent successfully");
+          } else {
+              Serial.println("Failed to send SMS");
+          }
+        } 
+      }
 
-    sendDetails(bpm, tempC);
+      sendDetails(bpm, tempC);
+
+    }
+
   }
 
 }
@@ -258,14 +257,17 @@ void handleAssignDeviceToUser(AsyncWebServerRequest *request, uint8_t *data, siz
 
 
 void updateMovingAverage(int bpm, float tempC) {
-    // Update BPM moving average
-    if (bpmReadings.size() >= movingAverageWindowSize) {
-        bpmSum -= bpmReadings.front();
-        bpmReadings.pop();
+    if (bpm > 0) {
+      if (bpmReadings.size() >= movingAverageWindowSize) {
+          bpmSum -= bpmReadings.front();
+          bpmReadings.pop();
+      }
+      bpmSum += bpm;
+      bpmReadings.push(bpm);
+      if (bpmReadings.size() > 0) {  // Ensure there is at least one element to avoid division by zero
+          bpmMovingAverage = bpmSum / bpmReadings.size();
+      }
     }
-    bpmSum += bpm;
-    bpmReadings.push(bpm);
-    bpmMovingAverage = bpmSum / bpmReadings.size();
 
     // Update Temperature moving average
     if (tempReadings.size() >= movingAverageWindowSize) {
@@ -274,5 +276,7 @@ void updateMovingAverage(int bpm, float tempC) {
     }
     tempSum += tempC;
     tempReadings.push(tempC);
-    tempMovingAverage = tempSum / tempReadings.size();
+    if (tempReadings.size() > 0) {  // Ensure there is at least one element to avoid division by zero
+        tempMovingAverage = tempSum / tempReadings.size();
+    }
 }

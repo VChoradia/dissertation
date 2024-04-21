@@ -6,10 +6,7 @@ import sqlalchemy
 
 def connect_unix_socket() -> sqlalchemy.engine.base.Engine:
     """Initializes a Unix socket connection pool for a Cloud SQL instance of MySQL."""
-    # Note: Saving credentials in environment variables is convenient, but not
-    # secure - consider a more secure solution such as
-    # Cloud Secret Manager (https://cloud.google.com/secret-manager) to help
-    # keep secrets safe.
+
     db_user = os.environ["DB_USER"]  # e.g. 'my-database-user'
     db_pass = os.environ["DB_PASS"]  # e.g. 'my-database-password'
     db_name = os.environ["DB_NAME"]  # e.g. 'my-database'
@@ -33,7 +30,7 @@ def connect_unix_socket() -> sqlalchemy.engine.base.Engine:
                 "ssl_verify_cert": "false"
             },
         ),
-        # ...
     )
 
     return pool
+

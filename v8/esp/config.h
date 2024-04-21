@@ -12,22 +12,22 @@
 #include <ArduinoJson.h>
 
 #define SWITCH_PIN 12
-#define LED_PIN 13
+#define LED_PIN 5
 
 bool isPublishing = false;  // State variable to keep track of publishing status
 bool isSwitchOn = false;
 int lastButtonState = LOW;  // Last state of the button
 
 
-const char* host = "143.167.38.207"; // IP address of your server
+const char* host = "143.167.36.198"; // IP address of your server
 const uint16_t httpPort = 5500; // Flask default port is 5000
 String serverName = "http://" + String(host) + ":" + String(httpPort) + "/save-device-data";
 
 WiFiClient espClient;
 
 // Pulse Sensor Setup
-const int PulseWire = 11;
-int Threshold = 550; 
+const int PulseWire = 10;
+int Threshold = 450; 
 PulseSensorPlayground pulseSensor;
 
 // DS18b20 Sensor Setup
@@ -75,10 +75,6 @@ void ledOff() {
     http.addHeader("Content-Type", "application/json");
     int httpResponseCode = http.POST(jsonData);
 
-    Serial.print("HTTP Response code: ");
-    Serial.println(httpResponseCode);
-
-    // Free resources
     http.end();
   }
   else {

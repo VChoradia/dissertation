@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Live Health Management</title>
+    <title>VitalMonitor</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar-styles.css') }}">
@@ -13,7 +13,7 @@
  <!-- Navbar -->
 <div class="navbar">
   <div class="navbar-header">
-      <a href="/"><span>Live Health Management for {{organization_name}}</span></a>
+      <a href="/"><span>VitalMonitor for {{organization_name}}</span></a>
   </div>
   <div class="navbar-links">
       <a href="{{ url_for('add_device_page') }}">Add New Device</a>
@@ -24,7 +24,7 @@
 </div>
 
   <div class="about-container">
-    <h1 class="greeting">Hi, {{ organization_name }}</h1>
+    <h1 class="greeting">Hi, {{ organization_name }}!</h1>
     
     <section class="users-section">
       <h2>Our Users</h2>
@@ -70,6 +70,10 @@
       </div>
     </section>
   </div>
+
+  {% for message in get_flashed_messages() %}
+        <div>{{ message }}</div>
+    {% endfor %}
 
     <!-- Footer -->
 <footer class="footer">

@@ -18,10 +18,10 @@ bool sendSMS(const char * body){
   std::stringstream urlEncodedBody;
   urlEncodedBody << "MessagingServiceSid=" << messagingServiceSid << "&To=" << to.c_str() << "&Body=" << body;
  
-  Serial.print("\nURL: ");
-  Serial.println(url.str().c_str());
-  Serial.print("Encoded body: ");
-  Serial.println(urlEncodedBody.str().c_str());
+  // Serial.print("\nURL: ");
+  // Serial.println(url.str().c_str());
+  // Serial.print("Encoded body: ");
+  // Serial.println(urlEncodedBody.str().c_str());
    
  
   HTTPClient http;
@@ -41,9 +41,7 @@ bool sendSMS(const char * body){
  
       Serial.print("\nResponse: ");
       Serial.println(payload);
-    }
- 
-  else {
+    } else {
     Serial.println("Error on HTTP request:");
     Serial.println(httpCode);
   }
