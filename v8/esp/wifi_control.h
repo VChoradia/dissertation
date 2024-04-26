@@ -30,7 +30,7 @@ void setupWiFi() {
   HTTPClient http;
   
   // Specify the URL for the POST request
-  http.begin("http://143.167.38.207:5500/add-new-device");
+  http.begin("http://143.167.36.204:5500/add-new-device");
   http.addHeader("Content-Type", "application/json");
 
   // Send the POST request

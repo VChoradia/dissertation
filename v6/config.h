@@ -19,7 +19,7 @@ bool isPublishing = false;  // State variable to keep track of publishing status
 int lastButtonState = LOW;  // Last state of the button
 
 
-const char* host = "143.167.38.207"; // IP address of your server
+const char* host = "143.167.39.80"; // IP address of your server
 const uint16_t httpPort = 5000; // Flask default port is 5000
 String serverName = "http://" + String(host) + ":" + String(httpPort) + "/sendDetails";
 

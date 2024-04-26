@@ -19,6 +19,7 @@ def create_app():
         from .config import DevelopmentConfig as Config
         app.config.from_object(Config)
         
+        
 
     
     CORS(app)

@@ -16,7 +16,7 @@ bool sendSMS(const char * body){
   url << "https://api.twilio.com/2010-04-01/Accounts/" << accountNr <<"/Messages";
  
   std::stringstream urlEncodedBody;
-  urlEncodedBody << "MessagingServiceSid=" << messagingServiceSid << "&To=" << to.c_str() << "&Body=" << body;
+  urlEncodedBody << "MessagingServiceSid=" << messagingServiceSid << "&To=" << global_to.c_str() << "&Body=" << body;
  
   // Serial.print("\nURL: ");
   // Serial.println(url.str().c_str());

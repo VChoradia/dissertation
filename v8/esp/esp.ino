@@ -1,3 +1,4 @@
+//v8
 
 #include <WiFi.h>
 #include <PulseSensorPlayground.h> 
@@ -19,6 +20,18 @@
 #include <WebHandlerImpl.h>
 #include <WebResponseImpl.h>
 #include <queue>
+#include <EEPROM.h>
+
+struct DeviceSettings {
+  char name[50];       // User's name
+  char phoneNumber[20]; // User's phone number
+  int bpmLowerThreshold;
+  int bpmUpperThreshold;
+  int tempLowerThreshold;
+  int tempUpperThreshold;
+  bool isPublishing;   // Publishing status
+};
+
 
 // Define the size of the moving average window
 const int movingAverageWindowSize = 10;
@@ -43,12 +56,13 @@ const String deviceNickname = "choradia";
 const String devicePasskey = "choradia";
 int device_id = -1;
 
-String to = "";
-String name = "";
-int bpm_lower_threshold = 60;
-int bpm_upper_threshold = 220;
-int temp_lower_threshold = 32;
-int temp_upper_threshold = 35;
+String global_to;
+String global_name;
+int global_bpm_lower_threshold;
+int global_bpm_upper_threshold;
+int global_temp_lower_threshold;
+int global_temp_upper_threshold;
+bool global_isPublishing;
 
 static unsigned long lastSMSTime = 1800000;  // Last SMS send timestamp
 static unsigned long lastPublishTime = 0;  // Last publish timestamp
@@ -65,8 +79,27 @@ void setup() {
 
   pinMode(LED_PIN, OUTPUT);
   pinMode(SWITCH_PIN, INPUT_PULLUP); 
+  isSwitchOn = digitalRead(SWITCH_PIN) == HIGH;
 
   setupWiFi();
+
+  if (!EEPROM.begin(512)) {  // Initialize EEPROM with desired size
+    Serial.println("Failed to initialize EEPROM");
+    return;
+  }
+
+  DeviceSettings settings = loadSettings(); 
+  global_name = settings.name;
+  global_to = settings.phoneNumber;
+  global_bpm_lower_threshold = settings.bpmLowerThreshold;
+  global_bpm_upper_threshold = settings.bpmUpperThreshold;
+  global_temp_lower_threshold = settings.tempLowerThreshold;
+  global_temp_upper_threshold = settings.tempUpperThreshold;
+  global_isPublishing = settings.isPublishing;
+
+
+  lastSMSTime = 1800000;  // Last SMS send timestamp
+  lastPublishTime = 0;  // Last publish timestamp
 
   setupServer();
 
@@ -74,7 +107,7 @@ void setup() {
 
   MQTT_connect();
 
-  if (!nameFeed.publish(name.c_str())) {
+  if (!nameFeed.publish(global_name.c_str())) {
       Serial.println(F("Failed Name"));
     }
   
@@ -89,7 +122,7 @@ void loop() {
   if (currentButtonState == HIGH && lastButtonState == LOW) {
     Serial.println("Button pressed");
     isSwitchOn = !isSwitchOn;  // Toggle the publishing state
-    if (isPublishing && isSwitchOn) {
+    if (isSwitchOn && global_isPublishing) {
       ledOn();
     } else {
       ledOff();
@@ -98,7 +131,7 @@ void loop() {
   }
   lastButtonState = currentButtonState;  // Update the last button state
 
-  if (isPublishing && isSwitchOn) {
+  if (isSwitchOn && global_isPublishing) {
     publishData();
   }
 }   
@@ -119,10 +152,10 @@ void publishData() {
     // Ensure MQTT connection
     MQTT_connect();
 
-    if (!nameFeed.publish(name.c_str())) {
+    if (!nameFeed.publish(global_name.c_str())) {
       Serial.println(F("Failed Name"));
     } 
-    if (!mobileNumberFeed.publish(to.c_str())) {
+    if (!mobileNumberFeed.publish(global_to.c_str())) {
       Serial.println(F("Failed Mobile Number Feed"));
     } 
 
@@ -158,12 +191,14 @@ void publishData() {
       Serial.println(F("Failed Temp"));
     } 
     
-      if(tempC > temp_upper_threshold || tempC < temp_lower_threshold || (bpm > bpm_upper_threshold &&  bpm>0) || (bpm < bpm_lower_threshold && bpm>0) ) {
+      if(tempC > global_temp_upper_threshold || tempC < global_temp_lower_threshold || (bpm > global_bpm_upper_threshold &&  bpm>0) || (bpm < global_bpm_lower_threshold && bpm>0) ) {
         unsigned long currentMillis = millis();  // Reuse currentMillis defined earlier in loop
         // Check if at least 30 minutes (1800000 milliseconds) have passed
         if (currentMillis - lastSMSTime >= 1800000) {
+          int cr = currentMillis - lastSMSTime;
+          Serial.println(cr);
           char smsString[240]; 
-          sprintf(smsString, "%s's Health Alert: Body Temperature has crossed %.2f°C and current BPM is %d.", name, tempC, bpm);
+          sprintf(smsString, "%s's Health Alert: Body Temperature has crossed %.2f°C and current BPM is %d.", global_name, tempC, bpm);
           if (sendSMS(smsString)) {  // Assuming sendSMS returns true if SMS was successfully sent
               lastSMSTime = currentMillis;  // Update the last SMS timestamp
               Serial.println("SMS sent successfully");
@@ -181,6 +216,33 @@ void publishData() {
 
 }
 
+void clearUserDetails() {
+    DeviceSettings settings = loadSettings();  // Load the current settings
+    // Reset user-specific details to default
+    strcpy(settings.name, "");  // Set name to empty
+    strcpy(settings.phoneNumber, "");  // Set phone number to empty
+    settings.bpmLowerThreshold = 0;
+    settings.bpmUpperThreshold = 0;
+    settings.tempLowerThreshold = 0;
+    settings.tempUpperThreshold = 0;
+    settings.isPublishing = false;
+    
+    saveSettings(settings);  // Save the modified settings back to EEPROM
+
+    isSwitchOn = false;
+    ledOff();
+
+    global_name = settings.name;
+    global_to = settings.phoneNumber;
+    global_bpm_lower_threshold = settings.bpmLowerThreshold;
+    global_bpm_upper_threshold = settings.bpmUpperThreshold;
+    global_temp_lower_threshold = settings.tempLowerThreshold;
+    global_temp_upper_threshold = settings.tempUpperThreshold;
+    global_isPublishing = settings.isPublishing;
+    
+}
+
+
 void setupServer() {
     
     server.on("/stop-publishing", handleStopPublishing);
@@ -192,13 +254,7 @@ void setupServer() {
   server.on("/clear-user-details", HTTP_POST, [](AsyncWebServerRequest *request) {
     // Handle unassign device logic here
     Serial.println("Device unassigned.");
-    // Reset user details
-    name = "";
-    to = "";
-    bpm_lower_threshold = 0;
-    bpm_upper_threshold = 0;
-    temp_lower_threshold = 0;
-    temp_upper_threshold = 0;
+    clearUserDetails(); // Reset user details
     request->send(200, "application/json", "{\"message\":\"Device unassigned successfully.\"}");
   });
 
@@ -213,20 +269,30 @@ void handleStopPublishing(AsyncWebServerRequest *request)
 
     Serial.println("Received request to stop publishing data.");
 
-    isPublishing = false;
+    DeviceSettings settings = loadSettings();  // Load the current settings
+    // Reset user-specific details to default
+    strcpy(settings.name, "");  // Set name to empty
+    strcpy(settings.phoneNumber, "");  // Set phone number to empty
+    settings.bpmLowerThreshold = 0;
+    settings.bpmUpperThreshold = 0;
+    settings.tempLowerThreshold = 0;
+    settings.tempUpperThreshold = 0;
+    settings.isPublishing = false;
+    
+    saveSettings(settings);  // Save the modified settings back to EEPROM
+    global_name = settings.name;
+    global_to = settings.phoneNumber;
+    global_bpm_lower_threshold = settings.bpmLowerThreshold;
+    global_bpm_upper_threshold = settings.bpmUpperThreshold;
+    global_temp_lower_threshold = settings.tempLowerThreshold;
+    global_temp_upper_threshold = settings.tempUpperThreshold;
+    global_isPublishing = settings.isPublishing;
+
+    isSwitchOn = false;
     ledOff();
-    name = "";
-    to = "";
-    bpm_lower_threshold = 0;
-    bpm_upper_threshold = 0;
-    temp_lower_threshold = 0;
-    temp_upper_threshold = 0;
     
     lastSMSTime = 1800000;
     lastPublishTime = 0;
-    // Code to stop publishing data goes here.
-    // This could involve setting a flag that is checked in the loop() function,
-    // stopping a timer, or other mechanisms depending on how data publishing is implemented.
 
     request->send(200, "application/json", "{\"status\":\"success\"}");
 }
@@ -236,21 +302,35 @@ void handleAssignDeviceToUser(AsyncWebServerRequest *request, uint8_t *data, siz
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, data);
 
-  // Extract user details from the request body
-  name = doc["username"].as<String>();
-  to = doc["phone_number"].as<String>();
-  bpm_lower_threshold = doc["bpm_lower_threshold"].as<int>();
-  bpm_upper_threshold = doc["bpm_upper_threshold"].as<int>();
-  temp_lower_threshold = doc["temp_lower_threshold"].as<int>();
-  temp_upper_threshold = doc["temp_upper_threshold"].as<int>();
+  DeviceSettings settings = loadSettings();
+  strcpy(settings.name, doc["username"].as<String>().c_str());
+  strcpy(settings.phoneNumber, doc["phone_number"].as<String>().c_str()); 
+  settings.bpmLowerThreshold = doc["bpm_lower_threshold"].as<int>();
+  settings.bpmUpperThreshold = doc["bpm_upper_threshold"].as<int>();
+  settings.tempLowerThreshold = doc["temp_lower_threshold"].as<int>();
+  settings.tempUpperThreshold = doc["temp_upper_threshold"].as<int>();
+  settings.isPublishing = true;
+ 
+  saveSettings(settings);
+
+  global_name = settings.name;
+  global_to = settings.phoneNumber;
+  global_bpm_lower_threshold = settings.bpmLowerThreshold;
+  global_bpm_upper_threshold = settings.bpmUpperThreshold;
+  global_temp_lower_threshold = settings.tempLowerThreshold;
+  global_temp_upper_threshold = settings.tempUpperThreshold;
+  global_isPublishing = settings.isPublishing;
 
   // Log received data for debugging
   Serial.println("Received user details for device assignment:");
-  Serial.print("Name: "); Serial.println(name);
-  Serial.print("Phone Number: "); Serial.println(to);
-  // Add more logs as needed
+  Serial.print("Name: "); Serial.println(settings.name);
+  Serial.print("Phone Number: "); Serial.println(settings.phoneNumber);
 
-  isPublishing = true;
+    if (isSwitchOn && global_isPublishing) {
+        ledOn();
+    } else {
+        ledOff();
+    }
 
   request->send(200, "application/json", "{\"message\":\"User details received and device assigned.\"}");
 }
