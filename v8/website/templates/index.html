@@ -52,16 +52,6 @@
         <div>{{ message }}</div>
     {% endfor %}
 
-<script>
-    // JavaScript to handle fetching and updating live data goes here
-    const evtSource = new EventSource("/data-stream");
-    evtSource.onmessage = function (e) {
-        const data = JSON.parse(e.data);
-        document.getElementById("bpm").innerText = data.bpm;
-        document.getElementById("temperature").innerText = data.temp;
-        // console.log(data);
-    };
-</script>
 
 <!-- Footer -->
 <footer class="footer">

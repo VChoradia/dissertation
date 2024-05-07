@@ -24,41 +24,59 @@
     <script>
         // Function to start listening for live data updates using Server-Sent Events
         function startLiveDataStream(deviceId) {
-    if (!deviceId) {
-        console.log("No device ID provided.");
-        return;
-    }
-
-    if (typeof(EventSource) !== "undefined") {
-        let source = new EventSource(`http://143.167.38.207:5500/get-device-data/${deviceId}`);
-
-        source.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            document.getElementById("bpm").textContent = "BPM: " + data.bpm;
-            document.getElementById("temperature").textContent = "Temperature: " + data.temperature + " °C";
-        };
-
-        source.onerror = function(event) {
-            console.log("Failed to connect to live data stream. Attempting to reconnect...");
-            source.close();
-            // Attempt to reconnect after 5 seconds
-            setTimeout(() => startLiveDataStream(deviceId), 5000);
-        };
-
-        // Close the SSE connection when the page is not visible
-        document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'hidden') {
-                source.close();
-                console.log("SSE closed due to page being hidden.");
-            } else {
-                startLiveDataStream(deviceId);
-                console.log("Reconnecting SSE as page is visible again.");
+            if (!deviceId) {
+                console.log("No device ID provided.");
+                return;
             }
-        });
-    } else {
-        document.getElementById("live-data").innerHTML = "Your browser does not support Server-Sent Events.";
-    }
-}
+
+            if (typeof(EventSource) !== "undefined") {
+                let source = new EventSource(`http://localhost:5500/get-device-data/${deviceId}`);
+
+                source.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    document.getElementById("bpm").textContent = "BPM: " + data.bpm;
+                    document.getElementById("temperature").textContent = "Temperature: " + data.temperature + " °C";
+                    
+                    // Threshold checks and visual alerts
+                    checkAndUpdateAlerts(data.bpm, data.temperature);
+                };
+
+                function checkAndUpdateAlerts(bpm, temperature) {
+                    const bpmUpperThreshold = parseInt(document.getElementById("bpm_upper_threshold").value, 10);
+                    const bpmLowerThreshold = parseInt(document.getElementById("bpm_lower_threshold").value, 10);
+                    const tempUpperThreshold = parseInt(document.getElementById("temperature_upper_threshold").value, 10);
+                    const tempLowerThreshold = parseInt(document.getElementById("temperature_lower_threshold").value, 10);
+
+                    // if (bpm > bpmUpperThreshold || bpm < bpmLowerThreshold) {
+                    //     alert('BPM out of set range!');
+                    // }
+                    // if (temperature > tempUpperThreshold || temperature < tempLowerThreshold) {
+                    //     alert('Temperature out of set range!');
+                    // }
+                }
+
+                source.onerror = function(event) {
+                    console.log("Failed to connect to live data stream. Attempting to reconnect...");
+                    source.close();
+                    // Attempt to reconnect after 5 seconds
+                    setTimeout(() => startLiveDataStream(deviceId), 5000);
+                };
+
+                // Close the SSE connection when the page is not visible
+                document.addEventListener('visibilitychange', function() {
+                    if (document.visibilityState === 'hidden') {
+                        source.close();
+                        console.log("SSE closed due to page being hidden.");
+                    } else if (!source || source.readyState === EventSource.CLOSED) {
+                        startLiveDataStream(deviceId);
+                        console.log("Reconnecting SSE as page is visible again.");
+                    }
+                });
+
+            } else {
+                document.getElementById("live-data").innerHTML = "Your browser does not support Server-Sent Events.";
+            }
+        }
 
     </script>
 </head>

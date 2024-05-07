@@ -12,13 +12,13 @@
 #include <ArduinoJson.h>
 
 #define SWITCH_PIN 12
-#define LED_PIN 5
+#define LED_PIN A1
 
 bool isSwitchOn = false;
 int lastButtonState = LOW;  // Last state of the button
 
 
-const char* host = "143.167.36.204"; // IP address of your server
+const char* host = "143.167.38.140"; // IP address of your server
 const uint16_t httpPort = 5500; // Flask default port is 5000
 String serverName = "http://" + String(host) + ":" + String(httpPort) + "/save-device-data";
 

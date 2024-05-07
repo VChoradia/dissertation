@@ -29,11 +29,11 @@ h2, h3 {
   }
 
 .no-device-image {
-    display: block; /* Or inline-block, depending on your layout */
-    margin: 0 auto; /* This will center the image */
-    max-width: 60%; /* Ensures image is not bigger than its container */
-    height: auto; /* Maintain aspect ratio */
-    padding-bottom: 20px; /* Space between image and button */
+    display: block;
+    margin: 0 auto; 
+    max-width: 60%; 
+    height: auto;
+    padding-bottom: 20px;
   }
 
 .device-container {
@@ -46,7 +46,7 @@ h2, h3 {
 }
 
 .device-card {
-    background-color: #c2d4e6; /* A lighter shade that complements the background */
+    background-color: #c2d4e6; 
     margin: 10px;
     border: 1px solid #b0c4de;
     border-radius: 10px;
@@ -58,7 +58,7 @@ h2, h3 {
 }
 
 .device-card.no-device {
-    background-color: #f2dede; /* Light red; adjust color as desired */
+    background-color: #f2dede; 
 }
 
 .device-card:hover {
@@ -74,33 +74,32 @@ h2, h3 {
 
 .device-nickname {
     text-transform: uppercase;
-    /* Rest of your styles */
   }
 
 .no-devices {
-    text-align: center; /* Center the button */
-    padding-top: 50px; /* Space from the top */
+    text-align: center;
+    padding-top: 50px; 
 }
   
 .big-add-device-btn {
-background-color: #add8e6; /* Light bluish color */
+background-color: #add8e6; 
 color: white;
-padding: 20px 40px; /* Bigger padding for a larger button */
-border-radius: 10px; /* Rounded corners */
+padding: 20px 40px;
+border-radius: 10px; 
 text-decoration: none;
-font-size: 24px; /* Larger font size */
-display: inline-block; /* Allows padding and text alignment */
-margin-top: 20px; /* Space from the content above */
-transition: background-color 0.3s; /* Smooth background transition */
+font-size: 24px;
+display: inline-block; 
+margin-top: 20px; 
+transition: background-color 0.3s; 
 }
 
 .big-add-device-btn:hover {
-background-color: #9fbedd; /* Slightly darker on hover */
+background-color: #9fbedd;
 }
 
 .plus-icon {
-margin-right: 10px; /* Space between the icon and the text */
-font-size: 30px; /* Larger plus icon */
+margin-right: 10px; 
+font-size: 30px; 
 }
 
 .flashes {

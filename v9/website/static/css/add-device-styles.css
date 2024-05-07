@@ -1,0 +1,175 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #ebf8ff; /* Or any color that matches your home page */
+    margin: 0;
+    padding: 0;
+    color: #333;
+    
+}
+
+.add-device-form-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px;
+    background: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    position: relative;
+    padding: 15px 0 0;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.form-field {
+    width: 100%;
+    /* padding: 7px 0; */
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    font-family: inherit;
+    font-size: 16px;
+    color: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    padding: 12px 10px; /* Increased padding to avoid overlap */
+    margin-bottom: 10px; /* Add space between fields */
+    border: 1px solid #ccc;
+}
+
+.form-group:last-child .form-field {
+    margin-bottom: 20px; /* Increase bottom margin for the last input field */
+  }
+
+.form-field::placeholder {
+    color: transparent;
+}
+
+.form-field:placeholder-shown ~ .form-label {
+    font-size: 16px;
+    cursor: text;
+    top: 20px;
+}
+
+.form-label {
+    position: absolute;
+    top: 0;
+    margin-top: 5px;
+    margin-left: 10px;
+    display: block;
+    transition: 0.2s;
+    font-size: 12px;
+    color: #9b9b9b;
+}
+
+.form-field:focus ~ .form-label {
+    position: absolute;
+    top: -10px;
+    display: block;
+    transition: 0.2s;
+    font-size: 12px;
+    color: #5C6BC0;
+    font-weight:700; /* Optional: makes the label bold when active */
+}
+
+/* Highlight the bottom border of input on focus */
+.form-field:focus {
+    padding-bottom: 6px;  
+    border-bottom: 2px solid #5C6BC0;
+}
+
+  
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .submit-btn {
+    background-color: #5C6BC0;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+  }
+  
+  .submit-btn:hover {
+    background-color: #3949AB;
+  }
+  
+  .back-btn {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #5C6BC0;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  
+  .back-btn:hover {
+    color: #3949AB;
+  }
+  
+  ul.messages {
+    list-style-type: none;
+    padding: 0;
+    text-align: center;
+  }
+  
+  ul.messages li {
+    color: red; /* Or another color that matches your design */
+    margin-top: 10px;
+  }
+
+
+  .info-button {
+    position: absolute;
+    right: 10px;
+    top: 55%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 1em;
+    color: #5C6BC0;
+  }
+
+
+  .footer {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #f2f2f2;
+    color: #666;
+    font-size: 14px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+  
+  

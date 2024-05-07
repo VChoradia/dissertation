@@ -29,8 +29,8 @@ def create_app():
     with app.app_context():
         db.create_all()
     
-    from app.routes import init_routes  # Import the initialization function from routes
-    init_routes(app)  # Initialize routes with the app object
+    from app.routes import init_routes  
+    init_routes(app)  
 
     return app
 

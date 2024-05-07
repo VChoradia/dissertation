@@ -1,0 +1,321 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: #ebf8ff;
+}
+
+.user-details-form {
+  width: 100%;
+  max-width: 500px;
+  margin: 4% auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1%;
+  margin-bottom: 1%;
+}
+
+.content-container {
+    display: flex;
+    justify-content: center; /* This centers the children horizontally in the container */
+    align-items: flex-start; /* This aligns items to the top */
+    flex-wrap: wrap; /* Allows items to wrap onto the next line if there's not enough room */
+    gap: 20px; /* This adds space between the flex items */
+    padding: 20px; /* Add padding around the content */
+    padding-bottom: 0;
+    min-height: calc(100vh - (60px + 20px + 55px));
+    box-sizing: border-box; /* Include padding in the element's total width and height */
+}
+
+.form-section, .info-section {
+    box-sizing: border-box;
+}
+
+.form-section {
+    width: 50%;
+    padding: 20px;
+    /* Additional styles for the form section if needed */
+}
+
+.info-section {
+    display: grid;
+    gap: 20px;
+    padding: 20px;
+    flex-grow: 0.3;
+}
+
+.info-block {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    padding: 1rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.info-block:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 30px rgba(0,0,0,0.15);
+}
+
+.info-block form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centers the form content vertically */
+}
+
+
+.full-button .button-delete {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 20px;
+    width: 100%;
+    border-radius: 8px;
+    text-align: center;
+    display: block;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    margin: 0; /* To ensure it fills the entire .info-block */
+}
+
+.full-button .button-delete:hover {
+    background-color: #c0392b;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 30px rgba(0,0,0,0.15);
+}
+
+/* Make sure the .info-block that wraps .button-delete is styled appropriately */
+.full-button {
+    margin-top: auto;
+    padding: 0; /* Remove padding to allow the button to fill the block */
+    border-radius: 8px; /* This should match the button's border-radius */
+    overflow: hidden; /* Ensures the button border-radius is not overridden */
+}
+
+.section-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.data-point {
+    font-size: 1.2rem;
+    color: #666;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.data-point .icon {
+    font-size: 2rem;
+    margin-right: 8px;
+}
+
+/* Icon classes for heart and temperature, replace with actual icons */
+.heart:before {
+    content: '\2764';
+    color: #e74c3c;
+}
+
+.temperature:before {
+    content: '\f2c9';
+    font-family: 'FontAwesome';
+    color: #f39c12;
+}
+
+/* Styles for the buttons inside the forms */
+input[type="submit"] {
+    background-color: #5c6bc0;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1rem;
+}
+
+input[type="submit"]:hover {
+    background-color: #3949ab;
+}
+
+.button-delete {
+    background-color: #e74c3c !important;
+}
+
+.button-delete:hover {
+    background-color: #c0392b !important;
+}
+
+/* Styles for the device selector */
+.device-selector {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .content-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .form-section, .info-section {
+        width: 100%; /* Full width on smaller screens */
+    }
+
+    .info-block {
+        min-height: auto; /* Remove min-height on smaller screens for better flexibility */
+    }
+}
+
+
+#live-data-block {
+    order: 1;
+}
+
+.form-group,
+.slider-group {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.form-field,
+.slider {
+  width: 100%;
+  padding: 12px 10px;
+  margin-bottom: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.slider-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 70%;
+  height: 5px;
+  border-radius: 5px;
+  background: #ddd;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #5c6bc0;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #5c6bc0;
+  cursor: pointer;
+}
+
+.slider-value {
+  min-width: 50px;
+  text-align: right;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px 10px;
+  background-color: #5c6bc0 !important;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+  background-color: #3949ab !important;
+}
+
+.back-btn {
+  margin-top: 1rem;
+  color: #5c6bc0;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.back-btn:hover {
+  color: #3949ab;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #5c6bc0;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #5c6bc0;
+  cursor: pointer;
+}
+
+ul.messages {
+    list-style-type: none;
+    padding: 0;
+    text-align: center;
+}
+  
+ul.messages li {
+    color: red; /* Or another color that matches your design */
+    margin-top: 10px;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #f2f2f2;
+    color: #666;
+    font-size: 14px;
+    margin-top: auto; /* This line pushes the footer to the bottom */
+    width: 100%;
+    position: relative;
+}
+
+#live-data-block {
+    order: -1;
+}

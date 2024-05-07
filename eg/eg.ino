@@ -1,9 +1,9 @@
-#include <WiFi.h> // For ESP32, or use <ESP8266WiFi.h> for ESP8266
-#include <ArduinoJson.h> // Include the ArduinoJson library
+#include <WiFi.h>
+#include <ArduinoJson.h> 
 
 const char* ssid = "uos-other";
 const char* password = "shefotherkey05";
-const char* host = "143.167.38.207"; // IP address of your server
+const char* host = "143.167.38.207"; 
 const uint16_t httpPort = 5000; // Flask default port is 5000
 
 void setup() {
@@ -38,10 +38,7 @@ void setup() {
                "Connection: close\r\n\r\n");
   delay(500); // Wait for server to respond
 
-  // Initialize the JSON Document
   DynamicJsonDocument doc(1024);
-
-  // Read all the lines of the reply from server and deserialize the JSON content
   String line;
   while (client.available()) {
     line = client.readStringUntil('\r');
@@ -56,10 +53,9 @@ void setup() {
   }
 
   // Extract the values
-  const char* name = doc["name"]; // "Siya Pradhan"
-  const char* to = doc["to"]; // "+447387219999"
+  const char* name = doc["name"]; 
+  const char* to = doc["to"]; 
 
-  // Print the values to the Serial Monitor
   Serial.print("Name: ");
   Serial.println(name);
   Serial.print("To: ");

@@ -66,10 +66,8 @@ void setupServer() {
     server.on("/verify", handleVerify);
     
     server.on("/receive-user-data", HTTP_POST, [](AsyncWebServerRequest *request) {
-        // You might want to handle any non-body part of the request here
     }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-        // Now call your external function
-        handleReceiveUserData(request, data, len, index, total); // Adjust the signature accordingly
+        handleReceiveUserData(request, data, len, index, total); 
     });
     
     server.on("/stop-publishing", handleStopPublishing);
@@ -82,20 +80,17 @@ void handleVerify(AsyncWebServerRequest *request)
 {
 
     Serial.println("Received verify request");
-    // Check if the passkey parameter exists to avoid potential null pointer dereference
     if (!request->hasParam("passkey"))
     {
         request->send(400, "application/json", "{\"error\":\"passkey parameter is missing\"}");
         return;
     }
 
-    // Now it's safe to assume the parameter exists
     String passkey = request->getParam("passkey")->value();
-    bool verified = passkey.equals(devicePasskey); // Assuming devicePasskey is defined elsewhere
+    bool verified = passkey.equals(devicePasskey); 
 
-    // Use the corrected case for the JSON key as per your requirement
     DynamicJsonDocument doc(1024);
-    doc["verified"] = verified; // Capital 'V' as per your requirement
+    doc["verified"] = verified; 
     String response;
     serializeJson(doc, response);
 
@@ -105,7 +100,7 @@ void handleVerify(AsyncWebServerRequest *request)
 void handleReceiveUserData(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
 {
 
-    DynamicJsonDocument doc(1024); // Adjust size according to your data structure
+    DynamicJsonDocument doc(1024); 
     DeserializationError error = deserializeJson(doc, data);
 
     if (error)
@@ -142,9 +137,6 @@ void handleStopPublishing(AsyncWebServerRequest *request)
     isPublishing = false;
     name = "";
     to = "";
-    // Code to stop publishing data goes here.
-    // This could involve setting a flag that is checked in the loop() function,
-    // stopping a timer, or other mechanisms depending on how data publishing is implemented.
 
     request->send(200, "application/json", "{\"status\":\"success\"}");
 }

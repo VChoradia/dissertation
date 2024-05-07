@@ -1,4 +1,4 @@
-#include <PulseSensorPlayground.h> // Includes the PulseSensorPlayground Library for the heartbeat sensor
+#include <PulseSensorPlayground.h> 
 
 // PulseSensor Setup
 const int PulseWire = A4; 

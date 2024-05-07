@@ -16,7 +16,7 @@ class MockResponse:
 
 @pytest.fixture
 def app():
-    app = create_app('config.TestConfig')  # Use the create_app function with the TestConfig
+    app = create_app('config.TestConfig')  
     return app
 
 @pytest.fixture
@@ -29,7 +29,7 @@ def client(app):
 def logged_in_client(client):
     with client:
         with client.session_transaction() as sess:
-            sess['organization_id'] = 1  # Assuming this ID must be logged in
+            sess['organization_id'] = 1  
             sess['organization_name'] = "TestOrg"
         yield client
 
@@ -211,7 +211,7 @@ def test_organization_details(logged_in_client):
         mock_get.return_value.json.return_value = {'users': [], 'devices': []}
         response = logged_in_client.get(url_for('organization_details'))
         assert response.status_code == 200
-        assert 'Hi,' in response.get_data(as_text=True)  # Confirm this text is indeed in the HTML
+        assert 'Hi,' in response.get_data(as_text=True) 
 
 def test_index_network_failure(logged_in_client, monkeypatch):
     def mock_get(*args, **kwargs):
@@ -226,7 +226,7 @@ def test_successful_logout(logged_in_client):
     response = logged_in_client.get(url_for('logout'), follow_redirects=True)
     assert 'organization_id' not in session
     assert response.status_code == 200
-    assert 'Login' in response.get_data(as_text=True)  # Assuming 'Login' appears on the login page
+    assert 'Login' in response.get_data(as_text=True) 
 
 
 def test_organization_details_content_display(logged_in_client):
@@ -266,13 +266,13 @@ def test_index_with_no_users(logged_in_client, monkeypatch):
     monkeypatch.setattr("requests.get", mock_get)
     response = logged_in_client.get(url_for('index'))
     assert response.status_code == 200
-    assert 'Add New User' in response.get_data(as_text=True)  # Assuming this message appears when no users are loaded
+    assert 'Add New User' in response.get_data(as_text=True)
 
 def test_add_device_page_authenticated(logged_in_client):
-    # Assuming the session is already set up by logged_in_client to include organization_name
+
     response = logged_in_client.get(url_for('add_device_page'))
     assert response.status_code == 200
-    assert 'Test Organization' in response.get_data(as_text=True)  # Check for the organization name in the response
+    assert 'Test Organization' in response.get_data(as_text=True) 
 
 def test_add_device_page_unauthenticated(client):
     response = client.get(url_for('add_device_page'), follow_redirects=False)

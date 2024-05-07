@@ -7,10 +7,10 @@ import os
 API_BASE_URL = 'http://localhost:5500'
 
 def create_app(config_class='config.Config'):
-    # Create the Flask application
+
     app = Flask(__name__, template_folder=os.path.abspath('./templates'), static_folder=os.path.abspath('./static'))
 
-    # Apply CORS and Session configurations
+    # CORS and Session configurations
     CORS(app)
     app.config.from_object(config_class)
     Session(app)

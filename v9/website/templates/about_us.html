@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VitalMonitor</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar-styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/about-style.css') }}">
+</head>
+<body>
+ <!-- Navbar -->
+ <!-- Navbar -->
+<div class="navbar">
+  <div class="navbar-header">
+      <a href="/"><span>VitalMonitor for {{organization_name}}</span></a>
+  </div>
+  <div class="navbar-links">
+      <a href="{{ url_for('add_device_page') }}">Add New Device</a>
+      <a href="{{ url_for('submit_user_details') }}">Add New User</a>
+      <a href="/about-us">About</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+</div>
+
+  <div class="about-container">
+    <h1 class="greeting">Hi, {{ organization_name }}!</h1>
+    
+    <section class="users-section">
+      <h2>Our Users</h2>
+      <div class="table-container">
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Device Assigned</th>
+            </tr>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.device_assigned if user.device_assigned else 'None' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+      </div>
+    </section>
+  
+    <section class="devices-section">
+      <h2>Our Devices</h2>
+      <div class="table-container">
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>MAC Address</th>
+                <th>IP Address</th>
+                <th>Nickname</th>
+                <th>User Assigned</th>
+            </tr>
+            {% for device in devices %}
+            <tr>
+                <td>{{ device.id }}</td>
+                <td>{{ device.mac_address }}</td>
+                <td>{{ device.ip_address }}</td>
+                <td>{{ device.nickname }}</td>
+                <td>{{ device.assigned_user if device.assigned_user else 'None' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+      </div>
+    </section>
+  </div>
+
+  {% for message in get_flashed_messages() %}
+        <div>{{ message }}</div>
+    {% endfor %}
+
+    <!-- Footer -->
+<footer class="footer">
+    <p>&copy; 2024 Live Health Management. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
+

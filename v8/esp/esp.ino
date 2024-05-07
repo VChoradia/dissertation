@@ -47,13 +47,14 @@ std::queue<float> tempReadings;
 float tempMovingAverage = 0;
 
 // Tolerance constants
+const int MOVING_AVERAGE_WINDOW_SIZE = 10;
 const int BPM_TOLERANCE = 10; // Adjust based on testing and sensor accuracy
 const float TEMP_TOLERANCE = 0.5; // Adjust based on testing and sensor accuracy
 
 
 AsyncWebServer server(80);
-const String deviceNickname = "choradia";
-const String devicePasskey = "choradia";
+const String deviceNickname = "smartpatch2";
+const String devicePasskey = "smartpatch2";
 int device_id = -1;
 
 String global_to;

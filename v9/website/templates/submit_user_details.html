@@ -1,0 +1,186 @@
+<!-- templates/submit_patient_details.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Add New User</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='images/icon.png') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/submit-user-details-styles.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/navbar-styles.css') }}"
+    />
+  </head>
+  <body>
+    <!-- Navbar -->
+<div class="navbar">
+  <div class="navbar-header">
+      <a href="/"><span>VitalMonitor for {{organization_name}}</span></a>
+  </div>
+  <div class="navbar-links">
+      <a href="{{ url_for('add_device_page') }}">Add New Device</a>
+      <a href="{{ url_for('submit_user_details') }}">Add New User</a>
+      <a href="/about-us">About</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+</div>
+
+    <form
+      method="POST"
+      action="{{ url_for('add_user_page') }}"
+      class="user-details-form"
+    >
+      <div class="form-group">
+        <label for="user_name" class="form-label">User's Name</label>
+        <input
+          type="text"
+          id="user_name"
+          name="user_name"
+          required
+          class="form-field"
+          placeholder=" "
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="phone_number" class="form-label">Phone Number</label>
+        <input
+          type="text"
+          id="phone_number"
+          name="phone_number"
+          required
+          class="form-field"
+          placeholder=" "
+        />
+      </div>
+
+      <div class="slider-group">
+        <label for="bpm_upper_threshold" class="form-label"
+          >BPM Upper Threshold</label
+        >
+        <input
+          type="range"
+          id="bpm_upper_threshold"
+          name="bpm_upper_threshold"
+          required
+          min="0"
+          max="300"
+          value="120"
+          class="slider"
+        />
+        <span id="bpm_upper_value" class="slider-value">120</span>&nbsp;bpm
+      </div>
+
+      <div class="slider-group">
+        <label for="bpm_lower_threshold" class="form-label"
+          >BPM Lower Threshold</label
+        >
+        <input
+          type="range"
+          id="bpm_lower_threshold"
+          name="bpm_lower_threshold"
+          required
+          min="0"
+          max="300"
+          value="120"
+          class="slider"
+        />
+        <span id="bpm_lower_value" class="slider-value">60</span>&nbsp;bpm
+      </div>
+
+      <div class="slider-group">
+        <label for="temperature_upper_threshold" class="form-label"
+          >Temperature Upper Threshold</label
+        >
+        <input
+          type="range"
+          id="temperature_upper_threshold"
+          name="temperature_upper_threshold"
+          required
+          min="20"
+          max="40"
+          value="32"
+          class="slider"
+        />
+        <span id="temperature_upper_value" class="slider-value">38</span> °C
+      </div>
+
+      <div class="slider-group">
+        <label for="temperature_lower_threshold" class="form-label"
+          >Temperature Lower Threshold</label
+        >
+        <input
+          type="range"
+          id="temperature_lower_threshold"
+          name="temperature_lower_threshold"
+          required
+          min="20"
+          max="40"
+          value="36"
+          class="slider"
+        />
+        <span id="temperature_lower_value" class="slider-value">35</span> °C
+      </div>
+
+      <div class="form-group">
+        <label for="device_id" class="form-label">Assign Device:</label>
+        <select
+          id="device_id"
+          name="device_id"
+          class="form-field"
+          {%
+          if
+          not
+          unassigned_devices
+          %}disabled{%
+          endif
+          %}
+        >
+          {% if unassigned_devices %}
+          <option value="">Select a Device</option>
+          {% for device in unassigned_devices %}
+          <option value="{{ device.id }}">{{ device.nickname }}</option>
+          {% endfor %} {% else %}
+          <option value="">No unassigned devices available</option>
+          {% endif %}
+        </select>
+      </div>
+
+      <!-- Terms and Conditions Checkbox -->
+      <div class="form-group terms-checkbox">
+        <input type="checkbox" id="terms" name="terms" required>
+        <label for="terms">
+          I agree to the <a href="{{ url_for('static', filename='terms.pdf') }}" download="Terms_and_Conditions.pdf">Terms and Conditions</a> and 
+          <a href="{{ url_for('static', filename='privacy.pdf') }}" download="Privacy_Policy.pdf">Privacy Policy</a>.
+        </label>
+      </div>
+
+      <input type="submit" value="Submit Details" class="submit-btn" />
+      <a href="{{ url_for('index') }}" class="back-btn">Back to Home</a>
+    </form>
+
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
+
+    <script src="{{ url_for('static', filename='js/submit-user-details-script.js') }}"></script>
+    <footer class="footer">
+      <p>&copy; 2024 Live Health Management. All rights reserved.</p>
+    </footer>
+  </body>
+</html>

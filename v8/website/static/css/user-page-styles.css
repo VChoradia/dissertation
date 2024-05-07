@@ -22,14 +22,14 @@ body, html {
 
 .content-container {
     display: flex;
-    justify-content: center; /* This centers the children horizontally in the container */
-    align-items: flex-start; /* This aligns items to the top */
-    flex-wrap: wrap; /* Allows items to wrap onto the next line if there's not enough room */
-    gap: 20px; /* This adds space between the flex items */
-    padding: 20px; /* Add padding around the content */
+    justify-content: center;
+    align-items: flex-start; 
+    flex-wrap: wrap; 
+    gap: 20px;
+    padding: 20px;
     padding-bottom: 0;
     min-height: calc(100vh - (60px + 20px + 55px));
-    box-sizing: border-box; /* Include padding in the element's total width and height */
+    box-sizing: border-box; 
 }
 
 .form-section, .info-section {
@@ -39,7 +39,6 @@ body, html {
 .form-section {
     width: 50%;
     padding: 20px;
-    /* Additional styles for the form section if needed */
 }
 
 .info-section {
@@ -66,7 +65,7 @@ body, html {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centers the form content vertically */
+    justify-content: center;
 }
 
 
@@ -83,7 +82,7 @@ body, html {
     cursor: pointer;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
-    margin: 0; /* To ensure it fills the entire .info-block */
+    margin: 0; 
 }
 
 .full-button .button-delete:hover {
@@ -92,12 +91,11 @@ body, html {
     box-shadow: 0 6px 30px rgba(0,0,0,0.15);
 }
 
-/* Make sure the .info-block that wraps .button-delete is styled appropriately */
 .full-button {
     margin-top: auto;
-    padding: 0; /* Remove padding to allow the button to fill the block */
-    border-radius: 8px; /* This should match the button's border-radius */
-    overflow: hidden; /* Ensures the button border-radius is not overridden */
+    padding: 0; 
+    border-radius: 8px; 
+    overflow: hidden;
 }
 
 .section-title {
@@ -119,7 +117,6 @@ body, html {
     margin-right: 8px;
 }
 
-/* Icon classes for heart and temperature, replace with actual icons */
 .heart:before {
     content: '\2764';
     color: #e74c3c;
@@ -131,7 +128,6 @@ body, html {
     color: #f39c12;
 }
 
-/* Styles for the buttons inside the forms */
 input[type="submit"] {
     background-color: #5c6bc0;
     color: white;
@@ -155,7 +151,6 @@ input[type="submit"]:hover {
     background-color: #c0392b !important;
 }
 
-/* Styles for the device selector */
 .device-selector {
     width: 100%;
     padding: 10px;
@@ -171,11 +166,11 @@ input[type="submit"]:hover {
     }
 
     .form-section, .info-section {
-        width: 100%; /* Full width on smaller screens */
+        width: 100%;
     }
 
     .info-block {
-        min-height: auto; /* Remove min-height on smaller screens for better flexibility */
+        min-height: auto; 
     }
 }
 
@@ -301,7 +296,7 @@ ul.messages {
 }
   
 ul.messages li {
-    color: red; /* Or another color that matches your design */
+    color: red; 
     margin-top: 10px;
 }
 
@@ -311,7 +306,7 @@ ul.messages li {
     background-color: #f2f2f2;
     color: #666;
     font-size: 14px;
-    margin-top: auto; /* This line pushes the footer to the bottom */
+    margin-top: auto; 
     width: 100%;
     position: relative;
 }

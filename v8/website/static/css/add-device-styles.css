@@ -1,6 +1,6 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #ebf8ff; /* Or any color that matches your home page */
+    background: #ebf8ff;
     margin: 0;
     padding: 0;
     color: #333;
@@ -51,7 +51,7 @@ body {
 }
 
 .form-group:last-child .form-field {
-    margin-bottom: 20px; /* Increase bottom margin for the last input field */
+    margin-bottom: 20px; 
   }
 
 .form-field::placeholder {
@@ -82,8 +82,7 @@ body {
     transition: 0.2s;
     font-size: 12px;
     color: #5C6BC0;
-    font-weight:700; /* Optional: makes the label bold when active */
-}
+    font-weight:700; 
 
 /* Highlight the bottom border of input on focus */
 .form-field:focus {
@@ -143,7 +142,7 @@ body {
   }
   
   ul.messages li {
-    color: red; /* Or another color that matches your design */
+    color: red; 
     margin-top: 10px;
   }
 

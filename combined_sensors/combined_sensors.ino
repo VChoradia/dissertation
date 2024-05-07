@@ -1,4 +1,4 @@
-#include <PulseSensorPlayground.h> // Includes the PulseSensorPlayground Library for the heartbeat sensor
+#include <PulseSensorPlayground.h>
 
 // PulseSensor Setup
 const int PulseWire = A4; 
@@ -29,7 +29,7 @@ void setup() {
 void loop() {
   // PulseSensor reading and display
   if (pulseSensor.sawStartOfBeat()) { // Constantly test to see if "a beat happened".
-    int myBPM = pulseSensor.getBeatsPerMinute(); // Calls function on pulseSensor object that returns BPM as an "int".
+    int myBPM = pulseSensor.getBeatsPerMinute();
     Serial.println("♥ A HeartBeat Happened !"); 
     Serial.print("BPM: "); 
     Serial.println(myBPM); 

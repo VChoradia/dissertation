@@ -36,18 +36,17 @@ def session_rollback(test_db):
 def test_device_unique_constraint(test_db):
     device1 = Device(mac_address="00:1B:44:11:3A:C7", ip_address="192.168.1.1", nickname="Device 1", passkey="12345")
     test_db.session.add(device1)
-    test_db.session.commit()  # Ensure this commit is outside the pytest.raises block
+    test_db.session.commit() 
 
     device2 = Device(mac_address="00:1B:44:11:3A:C7", ip_address="192.168.1.2", nickname="Device 2", passkey="67890")
     test_db.session.add(device2)
     with pytest.raises(IntegrityError):
         test_db.session.commit()  # This should fail
 
-    test_db.session.rollback()  # Cleanup the session.
+    test_db.session.rollback() 
 
 
 def test_new_user(test_db):
-    # Assuming that we must have an organization_id, create an organization first
     organization = Organization(name="Test Organization", password_hash="hashed_pw")
     test_db.session.add(organization)
     test_db.session.commit()
@@ -64,7 +63,6 @@ def test_new_user(test_db):
     
 
 def test_user_phone_number(test_db):
-    # Assuming that we must have an organization_id, create an organization first
     organization = Organization(name="Test Organization", password_hash="hashed_pw")
     test_db.session.add(organization)
     test_db.session.commit()

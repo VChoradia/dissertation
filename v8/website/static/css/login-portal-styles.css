@@ -24,34 +24,31 @@ body {
 
 .toggle-buttons {
     display: flex;
-    border-bottom: 4px solid  #2C3E50; /* Dark purplish-blue border */
+    border-bottom: 4px solid  #2C3E50; 
     margin-bottom: 20px;
-    overflow: hidden; /* Prevents border from extending past the button width */
+    overflow: hidden;
 }
 
-/* Styling buttons to fill the form width together */
 .toggle-buttons button {
-    flex: 1; /* Each button will take up equal space */
-    background-color: #fff; /* Button background to match form */
-    color:  #2C3E50; /* Dark purplish-blue text color */
-    padding: 15px 0; /* Larger padding for a bigger button */
+    flex: 1; 
+    background-color: #fff; 
+    color:  #2C3E50; 
+    padding: 15px 0;
     border: none;
     outline: none;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* The active button style */
 .toggle-buttons button.active {
-    border-bottom: 4px solid  #2C3E50; /* Dark purplish-blue bottom border for the active button */
+    border-bottom: 4px solid  #2C3E50;
     font-weight: bold;
     color:  #2C3E50;
-    background-color: #f9f9f9; /* Slightly different background for the active tab */
+    background-color: #f9f9f9; 
 }
 
-/* Hover effect */
 .toggle-buttons button:hover {
-    background-color: #f9f9f9; /* Slight background change on hover */
+    background-color: #f9f9f9; 
 }
 
 input[type="text"], input[type="password"] {

@@ -33,4 +33,3 @@ def test_connect_unix_socket_invalid_env_vars():
         os.environ["DB_PASS"] = ""
         connect_unix_socket()
 
-    # Add more test cases as needed to cover different scenarios

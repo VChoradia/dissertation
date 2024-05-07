@@ -9,6 +9,7 @@ import time
 
 def init_routes(app):
 
+# Session Management
     @app.route('/register', methods=['POST'])
     def register_organization():
         data = request.json
@@ -32,6 +33,7 @@ def init_routes(app):
 
         return jsonify({"success": "Organization registered successfully", "organization_id": new_organization.id, "organization_name": name}), 201
 
+# Session Management
     @app.route('/login', methods=['POST'])
     def login_organization():
         data = request.json
@@ -50,7 +52,7 @@ def init_routes(app):
         else:
             return jsonify({"error": "Invalid name or password"}), 401
 
-
+# User Management
     @app.route('/add-new-user', methods=['POST'])
     def add_new_user():
         data = request.json
@@ -88,6 +90,7 @@ def init_routes(app):
             db.session.rollback()
             return jsonify({"error": str(e)}), 500 
 
+#Device Data Management
     @app.route('/add-new-device', methods=['POST'])
     def add_or_update_device():
         data = request.json
@@ -114,7 +117,7 @@ def init_routes(app):
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
         
-
+    # User Management
     @app.route('/associate-device', methods=['POST'])
     def associate_device_to_organization():
         data = request.json
@@ -151,7 +154,7 @@ def init_routes(app):
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
 
-
+    # User Management
     @app.route('/assign-device-to-user', methods=['POST'])
     def assign_device_to_user():
         data = request.json
@@ -193,6 +196,7 @@ def init_routes(app):
         except requests.exceptions.RequestException as e:
             return jsonify({"error": f"Request to device failed: {e}"}), 500
 
+    # User Management
     @app.route('/unassign-device/<int:device_id>/<int:user_id>', methods=['POST'])
     def unassign_device(device_id, user_id):
 
@@ -213,10 +217,8 @@ def init_routes(app):
         except requests.exceptions.RequestException as e:
             return jsonify({"error": f"Failed to communicate with the device: {e}"}), 500
 
-        # Remove the link between the device and the user
         device.user_id = None
         user.device = None
-        # Optionally, clear device data associated with the device
         DeviceData.query.filter_by(device_id=device_id).delete()
 
         db.session.commit()
@@ -227,6 +229,7 @@ def init_routes(app):
 
         return jsonify({"success": "Device unassigned successfully, user details cleared, and device data removed"}), 200
 
+    # User Management
     @app.route('/update-user-details', methods=['POST'])
     def update_user_details():
         data = request.json
@@ -274,7 +277,8 @@ def init_routes(app):
                 return jsonify({"error": f"Request to device failed: {e}"}), 500
         else:
             return jsonify({"success": "User details updated successfully, but no device is assigned to this user"}), 200
-        
+
+     # User Management   
     @app.route('/get-device-data/<int:device_id>', methods=['GET'])
     def get_device_data(device_id):
         def generate():
@@ -294,6 +298,7 @@ def init_routes(app):
 
         return Response(generate(), content_type='text/event-stream', headers={'Cache-Control': 'no-cache'})
 
+    #Device Data Management
     @app.route('/save-device-data', methods=['POST'])
     def save_device_data():
         data = request.get_json()
@@ -319,6 +324,7 @@ def init_routes(app):
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
         
+    #User Management
     @app.route('/delete-device/<int:device_id>', methods=['DELETE'])
     def delete_device(device_id):
         device = Device.query.get(device_id)
@@ -346,6 +352,7 @@ def init_routes(app):
         else:
             return jsonify({"error": "Device not found"}), 404
 
+    #User Management
     @app.route('/delete-user/<int:user_id>', methods=['DELETE'])
     def delete_user(user_id):
         user = User.query.get(user_id)
@@ -364,6 +371,7 @@ def init_routes(app):
             return jsonify({"success": "User deleted successfully, device user details cleared"}), 200
         else:
             return jsonify({"error": "User not found"}), 404
+
 
     @app.route('/delete-organization/<int:organization_id>', methods=['DELETE'])
     def delete_organization(organization_id):

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Organization Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login-portal-styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar-styles.css') }}"> 
+</head>
+<body>
+
+<div class="navbar">
+  <div class="navbar-header">
+      <span>VitalMonitor</span>
+  </div>
+</div>
+
+<div class="form-container">
+    <div class="toggle-buttons">
+        <button id="registerBtn">Register</button>
+        <button id="loginBtn">Login</button>
+    </div>
+    <div id="registerForm" class="form-content">
+        <h2>Register Organization</h2>
+        <form action="/register" method="post">
+            <label for="name">Organization Name:</label>
+            <input type="text" id="name" name="name" required><br><br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br><br>
+            <input type="submit" value="Register">
+        </form>
+    </div>
+    <div id="loginForm" class="form-content" style="display: none;">
+        <h2>Login</h2>
+        <form action="/login" method="post">
+            <label for="login_name">Organization Name:</label>
+            <input type="text" id="login_name" name="name" required><br><br>
+            <label for="login_password">Password:</label>
+            <input type="password" id="login_password" name="password" required><br><br>
+            <input type="submit" value="Login">
+        </form>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>&copy; 2024 Live Health Management. All rights reserved.</p>
+</footer>
+
+<script>
+document.getElementById("registerBtn").onclick = function() {
+    document.getElementById("registerForm").style.display = "block";
+    document.getElementById("loginForm").style.display = "none";
+    this.classList.add('active');
+    document.getElementById("loginBtn").classList.remove('active');
+};
+
+document.getElementById("loginBtn").onclick = function() {
+    document.getElementById("loginForm").style.display = "block";
+    document.getElementById("registerForm").style.display = "none";
+    this.classList.add('active');
+    document.getElementById("registerBtn").classList.remove('active');
+};
+
+// Initialize one as active
+document.getElementById("registerBtn").classList.add('active');
+</script>
+
+</body>
+</html>

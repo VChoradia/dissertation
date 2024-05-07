@@ -160,7 +160,7 @@ ul.messages {
   }
   
   ul.messages li {
-    color: red; /* Or another color that matches your design */
+    color: red;
     margin-top: 10px;
   }
 
@@ -170,7 +170,7 @@ ul.messages {
     background-color: #f2f2f2;
     color: #666;
     font-size: 14px;
-    margin-top: auto; /* This line pushes the footer to the bottom */
+    margin-top: auto; 
     width: 100%;
 }
 

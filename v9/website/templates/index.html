@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VitalMonitor</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar-styles.css') }}">
+    <script src="{{ url_for('static', filename='lib/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+  <div class="navbar-header">
+      <a href="/"><span>VitalMonitor for {{organization_name}}</span></a>
+  </div>
+  <div class="navbar-links">
+      <a href="{{ url_for('add_device_page') }}">Add New Device</a>
+      <a href="{{ url_for('submit_user_details') }}">Add New User</a>
+      <a href="/about-us">About</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+</div>
+
+<div class="main-content {% if users|length == 0 %}center-content{% endif %}">
+  {% if users|length == 0 %}
+    <div class="no-devices">
+      <img src="{{ url_for('static', filename='images/no-device-added-without-bg.png') }}" alt="No Device Added" class="no-device-image"/>
+      <a href="{{ url_for('submit_user_details') }}" class="big-add-device-btn">
+        <span class="plus-icon">+</span> Add New User
+      </a>
+    </div>
+  {% else %}
+    <div class="device-container">
+        {% for user in users %}
+        <div class="device-card {{ 'no-device' if not user.device_assigned else ''}} " onclick="window.location.href='{{ url_for('user_page', user_id=user.id) }}'">
+            <div class="device-info">
+                <h4 class="device-nickname">{{ user.username | upper }}</h4>
+                <p>BPM: <span id="bpm">--</span></p>
+                <p>Temperature: <span id="temperature">--</span> &deg;C</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+{% for message in get_flashed_messages() %}
+        <div>{{ message }}</div>
+    {% endfor %}
+
+<script>
+    // JavaScript to handle fetching and updating live data goes here
+    const evtSource = new EventSource("/data-stream");
+    evtSource.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        document.getElementById("bpm").innerText = data.bpm;
+        document.getElementById("temperature").innerText = data.temp;
+        // console.log(data);
+    };
+</script>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>&copy; 2024 Live Health Management. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

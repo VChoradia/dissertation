@@ -94,7 +94,7 @@ def init_routes(app):
     def add_device():
         nickname = request.form.get('nickname')
         passkey = request.form.get('passkey')
-        organization_id = session.get('organization_id')  # Assuming this is stored in session upon login
+        organization_id = session.get('organization_id')
 
         data = {
             'nickname': nickname,
@@ -149,9 +149,9 @@ def init_routes(app):
         bpm_lower_threshold = request.form.get('bpm_lower_threshold')
         temperature_upper_threshold = request.form.get('temperature_upper_threshold')
         temperature_lower_threshold = request.form.get('temperature_lower_threshold')
-        device_id = request.form.get('device_id')  # Assuming this comes from the form
+        device_id = request.form.get('device_id')  
 
-        organization_id = session.get('organization_id')  # Assuming this is stored in the session
+        organization_id = session.get('organization_id') 
 
         print(username, organization_id)
 
